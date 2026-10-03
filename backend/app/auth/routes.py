@@ -32,6 +32,7 @@ def register_user(data: UserRegister, db: Session = Depends(get_db)):
     new_user = User(
         name=data.name,
         email=data.email,
+        phone=data.phone,
         password_hash=hashed_pw,
         role=UserRole.user,
     )
@@ -78,3 +79,9 @@ def login_user(data: UserLogin, db: Session = Depends(get_db)):
     })
 
     return {"access_token": token, "token_type": "bearer"}
+
+#Get all workers (for admin)
+@router.get("/workers")
+def get_workers(db: Session = Depends(get_db)):
+    workers = db.query(User).filter(User.role == UserRole.worker).all()
+    return [{"id": w.id, "name": w.name, "email": w.email, "category": w.worker_category} for w in workers]

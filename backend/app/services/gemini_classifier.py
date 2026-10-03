@@ -1,8 +1,10 @@
 import re
 import json
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 
+load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def classify_grievance(problem: str):
@@ -18,14 +20,18 @@ def classify_grievance(problem: str):
     {{
       "category": "One of [Water, Electricity, Roads, Waste, Health, Law & Order, Other]",
       "priority": "High / Medium / Low",
-      "region": "City or District name (if mentioned, else 'Unknown')"
+      "region": "General area or region (if mentioned, else null)",
+      "state": "State name (if mentioned, else null)",
+      "city": "City name (if mentioned, else null)",
+      "zone": "Zone name e.g., North, South, East, West (if mentioned, else null)",
+      "ward": "Ward name or number (if mentioned, else null)"
     }}
 
     Grievance: "{problem}"
     """
 
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
         text = response.text.strip()
 
@@ -43,5 +49,9 @@ def classify_grievance(problem: str):
         return {
             "category": "Other",
             "priority": "Medium",
-            "region": "Unknown"
+            "region": "Unknown",
+            "state": None,
+            "city": None,
+            "zone": None,
+            "ward": None
         }

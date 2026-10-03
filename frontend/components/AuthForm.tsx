@@ -4,25 +4,24 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 interface AuthFormProps {
   type: "login" | "register";
-  role: "user" | "admin";
+  role: "user" | "admin" | "worker";
 }
 
 export default function AuthForm({ type, role }: AuthFormProps) {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
+    const loadingToast = toast.loading("Processing...");
 
     try {
       const endpoint = type === "register" ? "/auth/register" : "/auth/login";
@@ -39,22 +38,22 @@ export default function AuthForm({ type, role }: AuthFormProps) {
       localStorage.setItem("token", access_token);
       localStorage.setItem("role", role);
 
-      setSuccess("Success! Redirecting...");
+      toast.success("Success! Redirecting...", { id: loadingToast });
 
       setTimeout(() => {
-        router.push(role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+        const targetPath = role === "admin" ? "/admin/dashboard" : role === "worker" ? "/worker/dashboard" : "/user/dashboard";
+        router.push(targetPath);
       }, 1500);
     } catch (err) {
       const error = err as AxiosError<{ detail?: string }>;
-      setError(error.response?.data?.detail || "Something went wrong");
+      toast.error(error.response?.data?.detail || "Something went wrong", { id: loadingToast });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col items-center justify-center">
-      <Navbar />
+    <div className="relative min-h-[calc(100vh-60px)] flex flex-col items-center justify-center">
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -67,15 +66,10 @@ export default function AuthForm({ type, role }: AuthFormProps) {
             ? "Create Your Account"
             : role === "admin"
             ? "Admin Login"
+            : role === "worker"
+            ? "Field Worker Login"
             : "User Login"}
         </h2>
-
-        {error && (
-          <p className="text-red-500 text-sm text-center mb-3">{error}</p>
-        )}
-        {success && (
-          <p className="text-green-500 text-sm text-center mb-3">{success}</p>
-        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {type === "register" && (
@@ -84,7 +78,18 @@ export default function AuthForm({ type, role }: AuthFormProps) {
               placeholder="Full Name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required
+            />
+          )}
+
+          {type === "register" && (
+            <input
+              type="tel"
+              placeholder="Contact Number"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
           )}
@@ -94,18 +99,27 @@ export default function AuthForm({ type, role }: AuthFormProps) {
             placeholder="Email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           <button
             type="submit"
@@ -120,7 +134,7 @@ export default function AuthForm({ type, role }: AuthFormProps) {
           </button>
         </form>
 
-        {role !== "admin" && (
+        {role === "user" && (
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
             {type === "register" ? (
               <>

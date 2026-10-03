@@ -43,3 +43,12 @@ def require_admin(current_user: User = Depends(get_current_user)):
             detail="Admin access required"
         )
     return current_user
+
+#Check if current user is admin OR worker
+def require_admin_or_worker(current_user: User = Depends(get_current_user)):
+    if current_user.role.value not in ["admin", "worker"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Elevated access required"
+        )
+    return current_user

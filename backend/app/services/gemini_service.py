@@ -12,7 +12,7 @@ def generate_solution(grievance_text: str):
     Generates a structured short-term and long-term solution using Gemini AI.
     """
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash') # Or 'gemini-pro'
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # We enforce a specific structure in the prompt
         prompt = (
@@ -29,3 +29,15 @@ def generate_solution(grievance_text: str):
     except Exception as e:
         print(f"Gemini Error: {e}")
         return "Solution generation unavailable at the moment."
+
+def generate_analytics_summary(prompt_text: str):
+    """
+    Generates a general summary for analytics or forecasts using Gemini AI.
+    """
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt_text)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Gemini Analytics Error: {e}")
+        return "Analytics summary generation unavailable at the moment."

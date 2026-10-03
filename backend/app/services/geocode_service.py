@@ -1,20 +1,21 @@
-from opencage.geocoder import OpenCageGeocode
-import os
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 def get_location(address):
-    api_key = os.getenv("OPENCAGE_API_KEY")
-    if not api_key:
-        print("No OpenCage API key found.")
+    if not address or address == "Unknown":
         return {"latitude": None, "longitude": None}
-    geocoder = OpenCageGeocode(api_key)
+        
     try:
-        result = geocoder.geocode(address)
-        if result:
+        # Nominatim requires a user_agent
+        geolocator = Nominatim(user_agent="igrs_grievance_system")
+        location = geolocator.geocode(address)
+        
+        if location:
             return {
-                "latitude": result[0]['geometry']['lat'],
-                "longitude": result[0]['geometry']['lng']
+                "latitude": location.latitude,
+                "longitude": location.longitude
             }
         return {"latitude": None, "longitude": None}
-    except Exception as e:
-        print("Geocoding error:", e)
+    except (GeocoderTimedOut, GeocoderServiceError) as e:
+        print(f"Geocoding error: {e}")
         return {"latitude": None, "longitude": None}

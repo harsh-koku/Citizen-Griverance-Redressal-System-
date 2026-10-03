@@ -7,8 +7,8 @@ from app.auth.utils import hash_password
 #Load environment variables
 load_dotenv()
 
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@igrs.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
 db = SessionLocal()
 existing_admin = db.query(User).filter(User.email == "admin@igrs.com").first()

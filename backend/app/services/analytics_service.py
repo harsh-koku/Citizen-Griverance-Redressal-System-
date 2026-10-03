@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import timedelta
 from fastapi import HTTPException
-from app.services.gemini_service import generate_solution
+from app.services.gemini_service import generate_analytics_summary
 from app.services.forecast_manager import get_forecast_model
 
 
@@ -57,7 +57,7 @@ def generate_forecast(category: str, days: int = 30):
             "Make it concise and suitable for dashboard display."
         )
         try:
-            summary = generate_solution(prompt)
+            summary = generate_analytics_summary(prompt)
         except Exception as e:
             print("Error generating AI summary:", e)
             summary = f"{category} grievances average around {avg_pred} — trend: {trend}."
