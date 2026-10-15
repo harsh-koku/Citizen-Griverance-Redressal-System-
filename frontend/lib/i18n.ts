@@ -107,6 +107,7 @@ export const translations = {
     "Pending": "लंबित",
     "General": "सामान्य",
     "Priority": "प्राथमिकता",
+    "Low": "salaam alaiqum",
     "Normal": "सामान्य",
     "Zone": "ज़ोन",
     "Ward": "वार्ड",

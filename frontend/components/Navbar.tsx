@@ -111,6 +111,34 @@ export default function Navbar() {
               >
                 {t("Dashboard")}
               </button>
+              {role === "user" && (
+                <>
+                  <button
+                    onClick={() => {
+                      router.push("/user/dashboard");
+                      setTimeout(() => {
+                        const el = document.getElementById("submit");
+                        el?.scrollIntoView({ behavior: "smooth" });
+                      }, 300);
+                    }}
+                    className="hidden md:inline text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition"
+                  >
+                    {t("+ New Grievance")}
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push("/user/dashboard");
+                      setTimeout(() => {
+                        const el = document.getElementById("grievances");
+                        el?.scrollIntoView({ behavior: "smooth" });
+                      }, 300);
+                    }}
+                    className="hidden md:inline text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition"
+                  >
+                    {t("My Grievances")}
+                  </button>
+                </>
+              )}
               <button 
                 onClick={handleLogout}
                 className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow-sm"

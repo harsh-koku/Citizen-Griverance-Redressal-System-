@@ -39,6 +39,8 @@ class GrievanceResponse(BaseModel):
     image_url: Optional[str] = None
     solution: Optional[str] = None
     status: Optional[str] = "Pending"
+    trust_score: Optional[int] = 100
+    is_spam: Optional[bool] = False
     created_at: Optional[datetime]
     assigned_worker_id: Optional[int] = None
     worker_note: Optional[str] = None

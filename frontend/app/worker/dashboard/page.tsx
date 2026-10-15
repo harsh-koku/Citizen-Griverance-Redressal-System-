@@ -37,6 +37,7 @@ export default function WorkerDashboard() {
   const [proofUrls, setProofUrls] = useState<{ [key: number]: string }>({});
   const [workerNotes, setWorkerNotes] = useState<{ [key: number]: string }>({});
   const [uploadingImageId, setUploadingImageId] = useState<number | null>(null);
+  const [isResolving, setIsResolving] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -63,6 +64,8 @@ export default function WorkerDashboard() {
   }, [router]);
 
   const handleResolve = async (id: number) => {
+    if (isResolving[id]) return; // Prevent double clicks
+    setIsResolving(prev => ({ ...prev, [id]: true }));
     try {
       const proofUrl = proofUrls[id] || "";
       const note = workerNotes[id] || "";
@@ -72,9 +75,13 @@ export default function WorkerDashboard() {
       });
       alert("Task marked as resolved!");
       setTasks(tasks.map(t => t.id === id ? { ...t, status: "Resolved" } : t));
-    } catch (error) {
-      alert("Failed to update status.");
+    } catch (error: any) {
+      // Extract the detailed message from the backend if it exists (e.g., AI Vision Rejection)
+      const errorMsg = error.response?.data?.detail || "Failed to update status.";
+      alert(errorMsg);
       console.error(error);
+    } finally {
+      setIsResolving(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -198,14 +205,34 @@ export default function WorkerDashboard() {
                         ) : (
                           <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
                             <CheckCircle size={16} /> Photo Attached!
+                            <button
+                              onClick={() => setProofUrls(prev => { const newUrls = {...prev}; delete newUrls[task.id]; return newUrls; })}
+                              className="text-red-500 hover:text-red-700 underline ml-2 text-xs"
+                            >
+                              (Remove)
+                            </button>
                           </div>
                         )}
                       </div>
                       <button
                         onClick={() => handleResolve(task.id)}
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md"
+                        disabled={isResolving[task.id]}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md ${
+                          isResolving[task.id] 
+                            ? 'bg-gray-400 cursor-not-allowed text-white' 
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
                       >
-                        <CheckCircle size={16} /> Mark as Resolved
+                        {isResolving[task.id] ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Analyzing Image...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle size={16} /> Mark as Resolved
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

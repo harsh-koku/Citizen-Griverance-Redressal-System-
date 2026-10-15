@@ -45,6 +45,11 @@ class Grievance(Base):
     image_url = Column(String(255), nullable=True)
     solution = Column(Text)
     status = Column(String(50), default="Pending")
+    
+    # Fraud & Spam Detection
+    trust_score = Column(Integer, default=100)
+    is_spam = Column(Integer, default=0) # using 0/1 for boolean to avoid cross-db issues
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # User who filed the grievance

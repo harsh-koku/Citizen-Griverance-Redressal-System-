@@ -1,15 +1,14 @@
-import re
 import json
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+from groq import Groq
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def classify_grievance(problem: str):
     """
-    Uses Gemini AI to classify a grievance into category, priority, and region.
+    Uses Groq LLM to classify a grievance into category, priority, and region.
     Returns a clean JSON dict that the frontend can parse directly.
     """
     prompt = f"""
@@ -31,21 +30,23 @@ def classify_grievance(problem: str):
     """
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-
-        # Remove markdown formatting like ```json ... ```
-        text = re.sub(r"^```(?:json)?", "", text)
-        text = re.sub(r"```$", "", text)
-        text = text.strip()
+        completion = client.chat.completions.create(
+            model="openai/gpt-oss-20b",
+            messages=[
+                {"role": "system", "content": "You output JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1
+        )
+        text = completion.choices[0].message.content.strip()
 
         # Parse JSON safely
         parsed = json.loads(text)
         return parsed
 
     except Exception as e:
-        print("Gemini classification error:", e)
+        print("LLM classification error:", e)
         return {
             "category": "Other",
             "priority": "Medium",

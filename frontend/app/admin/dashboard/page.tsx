@@ -172,6 +172,22 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUnassignWorker = async (grievanceId: number) => {
+    try {
+      await api.put(`/grievance/${grievanceId}/assign`);
+      alert("Worker unassigned successfully.");
+
+      // Update local state
+      setGrievances(prev => prev.map(g => g.id === grievanceId ? { ...g, status: g.status === "In Progress" ? "Pending" : g.status, assigned_worker_id: null } : g));
+      if (selectedGrievance && selectedGrievance.id === grievanceId) {
+        setSelectedGrievance({ ...selectedGrievance, status: selectedGrievance.status === "In Progress" ? "Pending" : selectedGrievance.status, assigned_worker_id: null });
+      }
+    } catch (error) {
+      console.error("Unassign failed", error);
+      alert("Failed to unassign worker.");
+    }
+  };
+
   const handleAutoAssign = async () => {
     try {
       const res = await api.post("/grievance/auto-assign");
@@ -185,19 +201,58 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAiEscalation = async () => {
+    try {
+      const res = await api.post("/ai/run-escalations");
+      alert(res.data.message);
+      // Refresh grievances
+      const gRes = await api.get("/grievance/all");
+      setGrievances(gRes.data);
+    } catch (error) {
+      console.error("AI Escalation failed", error);
+      alert("Failed to run AI Escalation.");
+    }
+  };
+
+  const [filterPriority, setFilterPriority] = useState("All");
+
   // --- Computed Data ---
   const filteredGrievances = useMemo(() => {
-    return grievances.filter(g => {
+    // 1. Filter
+    let filtered = grievances.filter(g => {
       const matchesSearch =
         g.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         g.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         g.category?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesFilter = filterStatus === "All" || g.status === filterStatus;
+      const matchesStatus = filterStatus === "All" || g.status === filterStatus;
+      const matchesPriority = filterPriority === "All" || g.priority === filterPriority;
 
-      return matchesSearch && matchesFilter;
+      return matchesSearch && matchesStatus && matchesPriority;
     });
-  }, [grievances, searchTerm, filterStatus]);
+
+    // 2. Sort (Starvation Prevention Algorithm)
+    // We calculate an "Urgency Score" combining Priority and Age (Days Pending).
+    const priorityWeight: Record<string, number> = { "Critical": 40, "High": 30, "Medium": 20, "Low": 10 };
+    
+    filtered.sort((a, b) => {
+      // If it's already resolved/closed, just sort by date (newest first)
+      if (a.status === "Resolved" || a.status === "Closed") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+
+      const getUrgency = (g: Grievance) => {
+        const weight = priorityWeight[g.priority] || 10;
+        const daysPending = (Date.now() - new Date(g.created_at).getTime()) / (1000 * 3600 * 24);
+        // Add 2 points per day pending. A 10-day old Low priority (10 + 20 = 30) matches a brand new High priority (30).
+        return weight + (daysPending * 2);
+      };
+
+      return getUrgency(b) - getUrgency(a); // Highest urgency first
+    });
+
+    return filtered;
+  }, [grievances, searchTerm, filterStatus, filterPriority]);
 
   const stats = useMemo(() => ({
     total: grievances.length,
@@ -233,6 +288,12 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={handleAiEscalation}
+              className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md"
+            >
+              Run AI Escalation
+            </button>
             <button
               onClick={handleAutoAssign}
               className="hidden md:flex bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md"
@@ -281,6 +342,18 @@ export default function AdminDashboard() {
                   <option value="Pending">Pending</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Resolved">Resolved</option>
+                </select>
+                <select
+                  value={filterPriority}
+                  onChange={(e) => setFilterPriority(e.target.value)}
+                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  title="Filter by priority. List is smart-sorted to prevent low-priority starvation."
+                >
+                  <option value="All">All Priorities</option>
+                  <option value="Critical">Critical</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
                 </select>
               </div>
             </div>
@@ -496,26 +569,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Section 2: AI Solution */}
-              <div>
-                <h4 className="text-blue-600 dark:text-blue-400 text-sm font-semibold uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <Lightbulb size={16} /> Gemini AI Recommendation
-                </h4>
-
-                <div className="space-y-3">
-                  {/* Parsing the solution text to make it look structured */}
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                    <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line leading-7">
-                      {/* We use dangerouslySetInnerHTML to allow bold tags from the backend */}
-                      <span dangerouslySetInnerHTML={{
-                        __html: selectedGrievance.solution
-                          .replace(/\*\*Short-term Action:\*\*/g, '<strong class="text-blue-700 block text-base mb-1">🚀 Short-term Action:</strong>')
-                          .replace(/\*\*Long-term Solution:\*\*/g, '<br/><strong class="text-green-700 block text-base mb-1 mt-4">🌳 Long-term Solution:</strong>')
-                      }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* Section 2 removed per user request */}
 
               {/* Section 3: Worker Assignment */}
               <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
@@ -523,8 +577,14 @@ export default function AdminDashboard() {
                   Assign Field Worker
                 </h4>
                 {selectedGrievance.assigned_worker_id ? (
-                  <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 p-3 rounded-lg flex items-center gap-2">
-                    <CheckCircle size={18} /> Field Worker is already assigned. (ID: {selectedGrievance.assigned_worker_id})
+                  <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 p-3 rounded-lg flex justify-between items-center gap-2">
+                    <div className="flex items-center gap-2"><CheckCircle size={18} /> Field Worker is already assigned. (ID: {selectedGrievance.assigned_worker_id})</div>
+                    <button
+                      onClick={() => handleUnassignWorker(selectedGrievance.id)}
+                      className="text-xs px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition"
+                    >
+                      Unassign
+                    </button>
                   </div>
                 ) : (
                   <div className="flex gap-2 items-center">
@@ -555,6 +615,12 @@ export default function AdminDashboard() {
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition whitespace-nowrap"
                     >
                       Assign & Notify
+                    </button>
+                    <button
+                      onClick={() => handleStatusUpdate(selectedGrievance.id, "Resolved")}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition whitespace-nowrap"
+                    >
+                      Force Resolve
                     </button>
                   </div>
                 )}

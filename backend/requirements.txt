@@ -104,3 +104,4 @@ websockets==15.0.1
 xyzservices==2025.10.0
 yarl==1.22.0
 python-multipart
+groq

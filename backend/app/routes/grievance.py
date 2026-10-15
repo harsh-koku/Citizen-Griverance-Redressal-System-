@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -9,8 +10,9 @@ import uuid
 from app.db import models, schemas, connection
 from app.services.nlp_processor import process_grievance
 from app.services.email_service import send_registration_email, send_status_update_email, send_worker_assignment_email
-from app.services.email_service import send_registration_email, send_status_update_email, send_worker_assignment_email
 from app.auth.dependencies import get_current_user, require_admin, require_admin_or_worker
+from app.services.fraud_detector import analyze_fraud_and_spam
+from app.services.verification_agent import verify_worker_resolution
 
 
 router = APIRouter(prefix="/grievance", tags=["Grievance"])
@@ -32,6 +34,16 @@ def submit_grievance(
     try:
         # Run NLP pipeline for categorization, priority, and region extraction
         processed = process_grievance(grievance.description)
+        
+        # [NEW FRAUD FEATURE] Analyze for spam/fake
+        fraud_analysis = analyze_fraud_and_spam(grievance.description)
+        processed["trust_score"] = int(fraud_analysis.get("trust_score", 100))
+        processed["is_spam"] = bool(fraud_analysis.get("is_spam", False))
+        
+        # Mark status as Spam if trust score is suspicious (<= 60) or explicitly marked as spam
+        if processed["is_spam"] or processed["trust_score"] <= 60:
+            processed["status"] = "Spam/Rejected"
+
 
         # Override NLP results if user explicitly provided them (e.g., via map or UI)
         if grievance.category:
@@ -189,6 +201,37 @@ def update_grievance_status(
     if not grievance:
         raise HTTPException(status_code=404, detail="Grievance not found")
 
+    # [NEW WORKER AUTOMATION] AI Verification before resolving
+    if status.lower() == "resolved":
+        # Image Requirement Rule
+        if grievance.image_url:
+            if not resolution_proof_url:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Citizen provided a photo of the issue. You MUST upload a photo of the completed work to resolve this."
+                )
+            
+            # Run AI Verification Agent (Vision)
+            qa_result = verify_worker_resolution(
+                grievance.description, 
+                worker_note or "", 
+                citizen_image_url=grievance.image_url, 
+                worker_image_url=resolution_proof_url
+            )
+            
+            if not qa_result.get("is_valid"):
+                raise HTTPException(
+                    status_code=406, 
+                    detail=f"AI Vision Rejected Resolution: {qa_result.get('qa_feedback')} Please provide a valid photo."
+                )
+            
+            worker_note = f"[AI Vision Verified] {worker_note or ''}"
+        else:
+            worker_note = f"[No Photo Provided] {worker_note or ''}"
+            
+        # Status changes to Pending Citizen Confirmation
+        status = "Pending Citizen Confirmation"
+
     grievance.status = status
     if worker_note:
         grievance.worker_note = worker_note
@@ -209,18 +252,55 @@ def update_grievance_status(
         
     return {"message": f"Grievance ID {grievance_id} updated to status '{status}'."}
 
+from fastapi.responses import HTMLResponse
+
+#Citizen: Confirm or Reject resolution from Email Link
+@router.get("/{grievance_id}/feedback", response_class=HTMLResponse)
+def citizen_email_feedback(
+    grievance_id: int,
+    accepted: str,
+    db: Session = Depends(connection.get_db)
+):
+    """
+    Handles the user clicking 'Yes' or 'No' directly from the resolution email.
+    """
+    grievance = db.query(models.Grievance).filter(models.Grievance.id == grievance_id).first()
+    if not grievance:
+        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'><h1>Grievance not found.</h1></body></html>"
+        
+    if grievance.status not in ["Pending Citizen Confirmation", "Resolved"]:
+        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'><h1>This grievance is already processed.</h1></body></html>"
+        
+    if accepted.lower() == "true":
+        grievance.status = "Closed"
+        db.commit()
+        return "<html><body style='font-family: Arial; text-align: center; padding: 50px; color: green;'><h1>Thank you! The grievance is now permanently Closed.</h1></body></html>"
+    else:
+        # Reopen, keep assigned to worker, but escalate to Critical
+        grievance.status = "In Progress"
+        grievance.priority = "Critical"
+        db.commit()
+        return "<html><body style='font-family: Arial; text-align: center; padding: 50px; color: red;'><h1>We apologize. The grievance has been reopened, escalated to CRITICAL priority, and the worker must fix it immediately.</h1></body></html>"
+
 #Admin-only: Assign worker to grievance
 @router.put("/{grievance_id}/assign")
 def assign_worker(
     grievance_id: int,
-    worker_id: int,
     background_tasks: BackgroundTasks,
+    worker_id: int = None,
     db: Session = Depends(connection.get_db),
     admin=Depends(require_admin)
 ):
     grievance = db.query(models.Grievance).filter(models.Grievance.id == grievance_id).first()
     if not grievance:
         raise HTTPException(status_code=404, detail="Grievance not found")
+        
+    if not worker_id:
+        grievance.assigned_worker_id = None
+        if grievance.status == "In Progress":
+            grievance.status = "Pending"
+        db.commit()
+        return {"message": "Worker unassigned successfully."}
         
     worker = db.query(models.User).filter(models.User.id == worker_id, models.User.role == models.UserRole.worker).first()
     if not worker:
