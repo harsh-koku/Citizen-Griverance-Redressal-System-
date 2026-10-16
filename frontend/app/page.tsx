@@ -2,158 +2,297 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FileText, BrainCircuit, HardHat, CheckCircle, ArrowRight } from "lucide-react";
+import { 
+  FileText, 
+  BrainCircuit, 
+  HardHat, 
+  CheckCircle2, 
+  ArrowRight, 
+  ShieldCheck, 
+  Clock, 
+  MapPin, 
+  BarChart2, 
+  Users 
+} from "lucide-react";
 import Logo from "@/components/Logo";
 
 export default function HomePage() {
   const router = useRouter();
 
-  // Mock recent grievance data
-  const recent = [
+  // Storytelling Workflow Stages
+  const workflowStages = [
     {
-      id: 1,
-      title: "Road Damage Fixed in Lucknow",
-      desc: "Potholes repaired and drainage restored in Alambagh area within 2 days after citizen complaint.",
-      img: "/lucknow-mock.jpg",
+      step: "01",
+      icon: <FileText size={22} className="text-blue-600 dark:text-blue-400" />,
+      title: "Citizen Voice & Evidence",
+      badge: "Input Layer",
+      desc: "Report issues via voice dictation in Hindi, Marathi, or English, or with interactive GPS coordinate pinning and photo evidence."
     },
     {
-      id: 2,
-      title: "Water Supply Restored in Kanpur",
-      desc: "Community handpump and supply lines repaired, ensuring clean water access for families.",
+      step: "02",
+      icon: <BrainCircuit size={22} className="text-purple-600 dark:text-purple-400" />,
+      title: "AI Analysis & Clustering",
+      badge: "Intelligence Layer",
+      desc: "Machine learning classifies urgency, detects duplicate complaints within 300m, and groups geographic hotspots with DBSCAN clustering."
+    },
+    {
+      step: "03",
+      icon: <HardHat size={22} className="text-amber-600 dark:text-amber-400" />,
+      title: "Automated Field Dispatch",
+      badge: "Operations Layer",
+      desc: "Automated assignment routes tasks to the nearest verified municipal technician with location-guided turn-by-turn routing."
+    },
+    {
+      step: "04",
+      icon: <CheckCircle2 size={22} className="text-emerald-600 dark:text-emerald-400" />,
+      title: "Verified Redressal",
+      badge: "Accountability Layer",
+      desc: "Before/after photo validation and cryptographically signed email feedback allow citizens to confirm true ground resolution."
+    }
+  ];
+
+  // Verified Municipal Case Studies
+  const caseStudies = [
+    {
+      id: 1,
+      title: "Critical Water Main Fracture",
+      location: "Sitabuldi Ward, Nagpur",
+      time: "Resolved in 18 hrs",
+      category: "Water Supply",
+      desc: "High-pressure pipeline leak detected and flagged Critical by AI; assigned to nearest field unit and restored with water quality recheck.",
       img: "/kanpur-mock.jpg",
     },
     {
+      id: 2,
+      title: "Road Sub-base Collapse",
+      location: "Itwari Market Sector, Nagpur",
+      time: "Resolved in 36 hrs",
+      category: "Infrastructure",
+      desc: "Multiple duplicate citizen reports automatically grouped into a single hotspot cluster; asphalt repaved with ground compaction testing.",
+      img: "/lucknow-mock.jpg",
+    },
+    {
       id: 3,
-      title: "Hospital Grievance Resolved in Varanasi",
-      desc: "Healthcare services improved through citizen feedback and prompt admin response.",
+      title: "Primary Health Center Sanitation",
+      location: "Civil Hospital Zone, Nagpur",
+      time: "Resolved in 24 hrs",
+      category: "Sanitation",
+      desc: "Waste disposal backlog resolved following citizen photo report; bio-waste collection schedule permanently standardized for the ward.",
       img: "/varanasi-mock.jpg",
     },
   ];
 
-  const steps = [
-    { icon: <FileText size={32} className="text-blue-500" />, title: "1. Submit Issue", desc: "Citizen logs in and submits a grievance with location details." },
-    { icon: <BrainCircuit size={32} className="text-purple-500" />, title: "2. AI Analysis", desc: "Our Gemini AI analyzes, prioritizes, and suggests solutions instantly." },
-    { icon: <HardHat size={32} className="text-orange-500" />, title: "3. Auto-Assignment", desc: "The system matches and assigns the nearest skilled field worker." },
-    { icon: <CheckCircle size={32} className="text-green-500" />, title: "4. Resolution", desc: "Field Worker resolves the issue and updates the status in real-time." },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0A0A0F] text-gray-800 dark:text-white font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
 
-      {/* HERO SECTION */}
-      <section className="relative h-[calc(100vh-60px)] flex items-center justify-center text-center overflow-hidden">
-        <Image
-          src="/bg-img.jpg"
-          alt="AI Governance Background"
-          fill
-          className="object-cover brightness-50"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#0A0A0F]"></div>
-
-        <div className="relative z-10 max-w-4xl px-6 flex flex-col items-center">
-          <div className="mb-6 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium backdrop-blur-md">
-            <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-            System Live & Accepting Reports
+      {/* HERO SECTION - Storytelling Municipal Portal */}
+      <section className="relative pt-24 pb-20 md:pt-32 md:pb-28 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          
+          {/* Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-xs font-semibold mb-6">
+            <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+            Municipal Grievance Redressal System &bull; Live Operations
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black mb-6 text-white tracking-tight">
-            Smarter Governance, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
-              Faster Resolution.
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight md:leading-none">
+            Civic Voice. Real-Time Action. <br className="hidden sm:inline" />
+            <span className="text-blue-600 dark:text-blue-400">
+              Transparent Municipal Redressal.
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Empowering citizens through AI-driven analytics, automated task assignment, and real-time tracking for a more transparent society.
+          <p className="mt-6 text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Bridging citizens, field workers, and municipal leadership through AI-assisted triaging, spatial hotspot detection, and verifiable ground resolution.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          {/* Action Hub - Clickable items only have active hover */}
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
             <button
+              type="button"
               onClick={() => router.push('/auth/login/user')}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2 cursor-pointer text-sm"
             >
-              Report an Issue <ArrowRight size={18} />
+              <span>File a Grievance</span>
+              <ArrowRight size={16} />
             </button>
+
             <button
+              type="button"
               onClick={() => router.push('/auth/login/worker')}
-              className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl backdrop-blur-md border border-white/10 transition-colors cursor-pointer"
+              className="px-6 py-3.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer text-sm"
             >
               Field Worker Portal
             </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/auth/login/admin')}
+              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 font-semibold rounded-lg transition-colors cursor-pointer text-sm"
+            >
+              Admin Intelligence Center
+            </button>
           </div>
+
+          {/* Civic Trust Indicators (Static info cards, no non-functional hovers) */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 text-left border-t border-slate-200 dark:border-slate-800 pt-10">
+            <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-1">
+                <Clock size={16} />
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Response SLA</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">&lt; 48 Hours</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Average resolution turnaround</div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-1">
+                <ShieldCheck size={16} />
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Verification</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">HMAC Signed</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Cryptographic citizen proof</div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 mb-1">
+                <BrainCircuit size={16} />
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">AI Clustering</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">DBSCAN 1.5km</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Geospatial micro-hotspot detection</div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-1">
+                <Users size={16} />
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Multi-Lingual</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">EN / HI / MR</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">AI voice typing & native UI</div>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* HOW IT WORKS SECTION */}
-      <section className="py-24 bg-[#0A0A0F] relative">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent"></div>
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-16 text-white">
-            How It <span className="text-blue-500">Works</span>
-          </h2>
+      {/* STORYTELLING WORKFLOW SECTION */}
+      <section className="py-20 bg-white dark:bg-slate-950">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2.5 py-1 rounded border border-blue-200 dark:border-blue-900">
+              The Redressal Lifecycle
+            </span>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mt-3">
+              How Civic Complaints Move from Filing to Ground Resolution
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+              Every stage is governed by transparent status transitions and verified accountability.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {steps.map((step, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {workflowStages.map((stage) => (
               <div
-                key={idx}
-                className="bg-[#12121A] p-8 rounded-2xl border border-gray-800/50 relative"
+                key={stage.step}
+                className="bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between"
               >
-                <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-inner">
-                  {step.icon}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                      {stage.icon}
+                    </div>
+                    <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+                      STAGE {stage.step}
+                    </span>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 inline-block mb-2">
+                    {stage.badge}
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">
+                    {stage.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {stage.desc}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* RECENT PROBLEMS SOLVED */}
-      <section className="py-24 bg-[#0D0D14] text-center relative border-t border-gray-800/30">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">
-          Impact in Action
-        </h2>
-        <p className="text-gray-400 mb-16 max-w-2xl mx-auto">Real issues resolved by our network of dedicated field workers and intelligent routing.</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
-          {recent.map((item) => (
-            <div
-              key={item.id}
-              className="bg-[#15151E] rounded-3xl overflow-hidden border border-gray-800 shadow-xl"
-            >
-              <div className="relative h-60 w-full overflow-hidden bg-gray-800">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900"></div>
-                <Image
-                  src={item.img}
-                  alt={item.title}
-                  fill
-                  className="object-cover mix-blend-overlay opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#15151E] to-transparent z-10"></div>
-              </div>
-              <div className="p-8 text-left relative z-20 -mt-20">
-                <div className="bg-blue-500/20 text-blue-400 text-xs font-bold px-3 py-1 rounded-full inline-block mb-3 border border-blue-500/20 backdrop-blur-md">Resolved</div>
-                <h3 className="text-xl font-bold mb-3 text-white">
-                  {item.title}
-                </h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
-              </div>
+      {/* IMPACT IN ACTION - Case Studies */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded border border-emerald-200 dark:border-emerald-900">
+                Verified Outcomes
+              </span>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mt-2">
+                Ground Resolution in Action
+              </h2>
             </div>
-          ))}
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-2 sm:mt-0">
+              Sample cases addressed through automatic technician routing and citizen confirmation.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {caseStudies.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col justify-between"
+              >
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                      <CheckCircle2 size={12} /> Resolved
+                    </span>
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                      {item.time}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1.5">
+                    {item.title}
+                  </h3>
+
+                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-3 font-medium">
+                    <MapPin size={12} className="text-slate-400" />
+                    <span>{item.location}</span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+
+                <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                  <span>Sector: <strong>{item.category}</strong></span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">&bull; Citizen Confirmed</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#050508] text-gray-500 py-8 border-t border-gray-800/50">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <Logo size="sm" showText={true} />
-          <p className="text-sm">
-            AI-Powered Public Grievance Portal
+      {/* FOOTER */}
+      <footer className="bg-slate-900 text-slate-400 py-10 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+          <div className="flex items-center gap-3">
+            <Logo size="sm" showText={true} />
+            <span className="border-l border-slate-700 pl-3 text-slate-500">Public Grievance Redressal Network</span>
+          </div>
+          <p className="text-slate-500">
+            Automated &bull; Geospatially Clustered &bull; Verified Redressal
           </p>
         </div>
       </footer>
+
     </div>
   );
 }
+

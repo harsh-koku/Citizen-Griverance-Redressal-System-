@@ -151,27 +151,27 @@ export default function Navbar() {
                 {/* Profile Trigger Button */}
                 <button
                   onClick={() => setIsProfileOpen(true)}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition shadow-sm group"
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition shadow-sm group cursor-pointer"
                   title={t("My Profile")}
                 >
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm ${
                     role === "admin"
-                      ? "bg-gradient-to-tr from-purple-600 to-indigo-600"
+                      ? "bg-purple-600"
                       : role === "worker"
-                      ? "bg-gradient-to-tr from-amber-500 to-orange-600"
-                      : "bg-gradient-to-tr from-cyan-500 to-blue-600"
+                      ? "bg-amber-600"
+                      : "bg-blue-600"
                   }`}>
                     {userName ? userName.trim().charAt(0).toUpperCase() : (role ? role.charAt(0).toUpperCase() : "U")}
                   </div>
-                  <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 max-w-[110px] truncate hidden sm:inline">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate hidden sm:inline">
                     {userName || (role === "admin" ? "Admin" : role === "worker" ? "Worker" : "Citizen")}
                   </span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded capitalize ${
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded capitalize border ${
                     role === "admin"
-                      ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
+                      ? "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800"
                       : role === "worker"
-                      ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
-                      : "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300"
+                      ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800"
+                      : "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800"
                   }`}>
                     {role === "admin" ? "Admin" : role === "worker" ? "Worker" : "Citizen"}
                   </span>
@@ -179,7 +179,7 @@ export default function Navbar() {
 
                 <button 
                   onClick={handleLogout}
-                  className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-sm"
+                  className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-sm cursor-pointer"
                 >
                   {t("Logout")}
                 </button>

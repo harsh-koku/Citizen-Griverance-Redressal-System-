@@ -42,13 +42,13 @@ export default function Logo({
       title={t("Public Grievance Portal")}
     >
       {/* Minimalist Civic AI Logo Emblem */}
-      <div className="relative flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+      <div className="relative flex-shrink-0">
         <Image
           src="/logo.png"
           alt="IGRS AI Logo"
           width={dimensions.icon}
           height={dimensions.icon}
-          className="rounded-xl shadow-sm ring-1 ring-cyan-500/30 object-cover aspect-square"
+          className="rounded-xl shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 object-cover aspect-square"
           priority
         />
       </div>
@@ -57,10 +57,10 @@ export default function Logo({
       {showText && (
         <div className="flex flex-col text-left leading-tight">
           <div className="flex items-center gap-1.5">
-            <span className={`font-black tracking-tight text-gray-900 dark:text-white ${dimensions.text}`}>
+            <span className={`font-black tracking-tight text-slate-900 dark:text-white ${dimensions.text}`}>
               IGRS
             </span>
-            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
               AI
             </span>
           </div>

@@ -173,19 +173,19 @@ export default function OnboardingTooltip({
         <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-cyan-400 dark:border-cyan-500 overflow-hidden text-gray-800 dark:text-gray-100">
           <div className={`absolute w-0 h-0 ${arrowBorder}`} style={arrowStyle} />
 
-          {/* Top subtle gradient bar */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500" />
+          {/* Top subtle solid bar */}
+          <div className="h-1.5 w-full bg-blue-600" />
 
           <div className="p-4 sm:p-5">
             {/* Header: step counter + close button */}
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
                 <Sparkles size={11} />
                 Step {current + 1} of {steps.length}
               </span>
               <button
                 onClick={dismiss}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
                 title="Skip tour"
               >
                 <X size={16} />
@@ -209,7 +209,7 @@ export default function OnboardingTooltip({
             <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={dismiss}
-                className="text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+                className="text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition cursor-pointer"
               >
                 Skip tour
               </button>
@@ -217,19 +217,19 @@ export default function OnboardingTooltip({
                 {current > 0 && (
                   <button
                     onClick={goPrev}
-                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
                   >
                     <ChevronLeft size={13} /> Back
                   </button>
                 )}
                 <button
                   onClick={goNext}
-                  className="inline-flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-md transition"
+                  className="inline-flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition cursor-pointer"
                 >
                   {current < steps.length - 1 ? (
                     <>Next <ChevronRight size={13} /></>
                   ) : (
-                    "Got it! ?"
+                    "Got it! ✓"
                   )}
                 </button>
               </div>

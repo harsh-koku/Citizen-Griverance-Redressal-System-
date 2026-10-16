@@ -339,12 +339,12 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Header */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard label="Total Grievances" value={stats.total} color="blue" />
-          <StatCard label="Pending" value={stats.pending} color="yellow" />
-          <StatCard label="Resolved" value={stats.resolved} color="green" />
-          <StatCard label="Critical Priority" value={stats.critical} color="red" />
+        {/* KPI Operations Grid (KPI Dashboard Design Pattern) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="Total Grievances" value={stats.total} color="blue" subtext="Aggregated across all wards" />
+          <StatCard label="Pending Triage" value={stats.pending} color="yellow" subtext="Awaiting worker assignment" />
+          <StatCard label="Verified Resolved" value={stats.resolved} color="green" subtext="Citizen & worker confirmed" />
+          <StatCard label="Critical Urgency" value={stats.critical} color="red" subtext="Elevated priority escalation" />
         </div>
 
         {/* --- VIEW: LIST --- */}
@@ -581,13 +581,13 @@ export default function AdminDashboard() {
             </div>
             {/* Insights Panel */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl shadow-lg">
-                <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                  <div className="bg-white/20 p-1.5 rounded-full"><BarChart3 size={16} /></div>
-                  AI Summary & Advice
+              <div className="bg-slate-900 dark:bg-slate-950 text-white p-6 rounded-xl border border-slate-700 shadow-sm">
+                <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+                  <div className="bg-slate-800 p-1.5 rounded-lg border border-slate-700"><BarChart3 size={16} className="text-blue-400" /></div>
+                  <span>AI Predictive Advisory</span>
                 </h3>
-                <p className="text-blue-100 text-sm leading-relaxed">
-                  {forecastSummary || "Select a category above to see our AI's advice on what issues to expect and how to prepare."}
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  {forecastSummary || "Select a category above to evaluate 30-day projected municipal complaint volume and deployment strategies."}
                 </p>
               </div>
 
@@ -763,17 +763,56 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
   );
 }
 
-function StatCard({ label, value, color }: { label: string; value: number; color: "blue" | "green" | "red" | "yellow" }) {
-  const colors = {
-    blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800",
-    green: "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-100 dark:border-green-800",
-    red: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-800",
-    yellow: "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border-yellow-100 dark:border-yellow-800",
+function StatCard({ 
+  label, 
+  value, 
+  color,
+  subtext 
+}: { 
+  label: string; 
+  value: number; 
+  color: "blue" | "green" | "red" | "yellow";
+  subtext?: string;
+}) {
+  const styles = {
+    blue: {
+      card: "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800",
+      accent: "text-blue-600 dark:text-blue-400",
+      badge: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border-blue-200 dark:border-blue-900"
+    },
+    green: {
+      card: "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800",
+      accent: "text-emerald-600 dark:text-emerald-400",
+      badge: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900"
+    },
+    red: {
+      card: "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800",
+      accent: "text-red-600 dark:text-red-400",
+      badge: "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300 border-red-200 dark:border-red-900"
+    },
+    yellow: {
+      card: "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800",
+      accent: "text-amber-600 dark:text-amber-400",
+      badge: "bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-900"
+    },
   };
+
+  const style = styles[color];
+
   return (
-    <div className={`p-5 rounded-xl border ${colors[color]} shadow-sm flex flex-col justify-between h-28`}>
-      <span className="text-sm font-medium opacity-80">{label}</span>
-      <span className="text-3xl font-bold">{value}</span>
+    <div className={`p-5 rounded-xl border ${style.card} shadow-sm flex flex-col justify-between`}>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</span>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${style.badge}`}>
+          Active
+        </span>
+      </div>
+      <div className="mt-2 mb-1">
+        <span className={`text-3xl font-extrabold ${style.accent}`}>{value}</span>
+      </div>
+      {subtext && (
+        <span className="text-[11px] text-slate-400 dark:text-slate-500">{subtext}</span>
+      )}
     </div>
   );
 }

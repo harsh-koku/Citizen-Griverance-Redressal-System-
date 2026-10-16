@@ -143,8 +143,8 @@ export default function ProfileModal({
     admin: {
       title: "System Administrator",
       badge: "Administrator",
-      badgeClass: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200 dark:border-purple-800",
-      avatarBg: "from-purple-600 to-indigo-600",
+      badgeClass: "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+      avatarBg: "bg-purple-600",
       dashboardUrl: "/admin/dashboard",
       icon: <ShieldCheck size={18} className="text-purple-600 dark:text-purple-400" />,
       tagline: "Central Command & Public Redressal Oversight",
@@ -152,8 +152,8 @@ export default function ProfileModal({
     worker: {
       title: "Field Operations Worker",
       badge: "Field Officer",
-      badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border-amber-200 dark:border-amber-800",
-      avatarBg: "from-amber-500 to-orange-600",
+      badgeClass: "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+      avatarBg: "bg-amber-600",
       dashboardUrl: "/worker/dashboard",
       icon: <Wrench size={18} className="text-amber-600 dark:text-amber-400" />,
       tagline: `Assigned Department: ${workerCategory || "Public Works"}`,
@@ -161,19 +161,19 @@ export default function ProfileModal({
     user: {
       title: "Verified Citizen",
       badge: "Citizen",
-      badgeClass: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800",
-      avatarBg: "from-cyan-500 to-blue-600",
+      badgeClass: "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+      avatarBg: "bg-blue-600",
       dashboardUrl: "/user/dashboard",
-      icon: <User size={18} className="text-cyan-600 dark:text-cyan-400" />,
+      icon: <User size={18} className="text-blue-600 dark:text-blue-400" />,
       tagline: "Civic Redressal & Grievance Reporting Account",
     },
   }[role] || {
     title: "Citizen",
     badge: "User",
-    badgeClass: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800",
-    avatarBg: "from-cyan-500 to-blue-600",
+    badgeClass: "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+    avatarBg: "bg-blue-600",
     dashboardUrl: "/user/dashboard",
-    icon: <User size={18} className="text-cyan-600 dark:text-cyan-400" />,
+    icon: <User size={18} className="text-blue-600 dark:text-blue-400" />,
     tagline: "Public Grievance Portal User",
   };
 
@@ -188,15 +188,16 @@ export default function ProfileModal({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
-        {/* Top Decorative Gradient */}
-        <div className={`h-24 bg-gradient-to-r ${roleMeta.avatarBg} relative flex items-center justify-between px-6`}>
-          <span className="text-xs uppercase tracking-widest font-black text-white/80">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+        {/* Top Decorative Solid Banner */}
+        <div className="h-20 bg-slate-900 dark:bg-slate-950 border-b border-slate-800 relative flex items-center justify-between px-6">
+          <span className="text-xs uppercase tracking-widest font-black text-slate-300">
             {t("Account Profile")}
           </span>
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition"
+            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -205,7 +206,7 @@ export default function ProfileModal({
         {/* Profile Avatar & Header Block */}
         <div className="px-6 pb-2 -mt-10 flex items-end justify-between">
           <div className="flex items-end gap-3">
-            <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${roleMeta.avatarBg} text-white font-black text-3xl flex items-center justify-center shadow-xl ring-4 ring-white dark:ring-gray-800`}>
+            <div className={`w-20 h-20 rounded-2xl ${roleMeta.avatarBg} text-white font-black text-3xl flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-slate-900`}>
               {initial}
             </div>
             <div className="mb-1">
@@ -361,7 +362,7 @@ export default function ProfileModal({
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-md shadow-cyan-500/20 transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer text-sm"
               >
                 {saving ? (
                   <>

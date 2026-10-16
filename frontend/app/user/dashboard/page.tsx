@@ -92,8 +92,15 @@ export default function UserDashboard() {
     },
   ];
 
+  const citizenStats = {
+    total: grievances.length,
+    pending: grievances.filter(g => g.status?.toLowerCase() === "pending").length,
+    inProgress: grievances.filter(g => g.status?.toLowerCase() === "in progress").length,
+    resolved: grievances.filter(g => g.status?.toLowerCase() === "resolved").length,
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
       {/* Interactive Onboarding Popover Tour */}
       <OnboardingTooltip
         steps={onboardingSteps}
@@ -102,33 +109,67 @@ export default function UserDashboard() {
         onClose={() => setShowTour(false)}
       />
 
-      <div className="px-6 md:px-12 py-8">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Dashboard Title & Quick Guide Trigger */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-2">
+              Citizen Redressal Portal
+            </div>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {t("User Dashboard")}
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">
-              {t("Manage your public grievances and requests.")}
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {t("Manage your public grievances and track real-time resolution progress.")}
             </p>
           </div>
           <button
+            type="button"
             onClick={() => setShowTour(true)}
-            className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-cyan-500 dark:hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm"
+            className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shadow-sm"
           >
-            <HelpCircle size={15} className="text-cyan-500" />
+            <HelpCircle size={15} className="text-blue-500" />
             <span>{t("How to use? Take a tour")}</span>
           </button>
         </div>
 
-        {/* Original Clean 2-Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* Citizen KPI Summary Bar (KPI Dashboard Design Pattern) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Filed</span>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{citizenStats.total}</div>
+            <span className="text-[11px] text-slate-400 mt-0.5 block">Lifetime complaints</span>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Pending Review</span>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{citizenStats.pending}</div>
+            <span className="text-[11px] text-amber-600/80 dark:text-amber-400/80 mt-0.5 block">Awaiting field dispatch</span>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">In Progress</span>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{citizenStats.inProgress}</div>
+            <span className="text-[11px] text-blue-600/80 dark:text-blue-400/80 mt-0.5 block">Technician assigned</span>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Resolved</span>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{citizenStats.resolved}</div>
+            <span className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80 mt-0.5 block">Ground work confirmed</span>
+          </div>
+        </div>
+
+        {/* 2-Column Responsive Workspace */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Left Column: Submit a Grievance Form */}
           <div className="w-full flex flex-col gap-4">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-              {t("Submit a Grievance")}
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {t("Submit a Grievance")}
+              </h2>
+              <span className="text-xs text-slate-500 dark:text-slate-400">AI Duplicate Guard Active</span>
+            </div>
             <GrievanceForm
               onSubmitted={(newItem) =>
                 setGrievances((prev) => [newItem, ...prev])
@@ -139,26 +180,31 @@ export default function UserDashboard() {
           {/* Right Column: Your Grievances List */}
           <div
             id="step-grievances-list"
-            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 min-h-[400px]"
+            className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 min-h-[400px]"
           >
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
-              {t("Your Grievances")}
-            </h2>
+            <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                {t("Your Grievances")}
+              </h2>
+              <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                {grievances.length} Active Records
+              </span>
+            </div>
 
             {loading ? (
               <div className="flex justify-center items-center h-40">
-                <p className="text-gray-500 dark:text-gray-400 animate-pulse">
+                <p className="text-slate-500 dark:text-slate-400 animate-pulse text-sm">
                   {t("Loading data...")}
                 </p>
               </div>
             ) : error ? (
-              <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg border border-red-200 dark:border-red-800">
+              <div className="bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 p-4 rounded-lg border border-red-200 dark:border-red-800 text-sm">
                 ⚠️ {error}
               </div>
             ) : grievances.length === 0 ? (
-              <div className="text-center py-10 text-gray-500 dark:text-gray-400">
-                <p className="text-lg font-medium">{t("No grievances yet.")}</p>
-                <p className="text-sm">
+              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                <p className="text-base font-medium">{t("No grievances yet.")}</p>
+                <p className="text-xs mt-1">
                   {t("Submit one using the form or AI Assistant!")}
                 </p>
               </div>
@@ -171,7 +217,7 @@ export default function UserDashboard() {
 
       {/* Floating Chatbot UI */}
       {submissionMode === "chatbot" && (
-        <div className="fixed bottom-24 right-6 w-96 max-w-[90vw] z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 h-[500px] max-h-[70vh]">
+        <div className="fixed bottom-24 right-6 w-96 max-w-[90vw] z-50 shadow-xl rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 h-[500px] max-h-[70vh]">
           <GrievanceChatbot
             onSubmitted={(newItem) => {
               setGrievances((prev) => [newItem, ...prev]);
@@ -181,20 +227,21 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Floating AI Chatbot Button */}
+      {/* Floating AI Chatbot Action Button */}
       <button
         id="step-ai-assistant"
+        type="button"
         onClick={() =>
           setSubmissionMode(submissionMode === "chatbot" ? "form" : "chatbot")
         }
         title={submissionMode === "chatbot" ? t("Close AI Assistant") : t("AI Assistant")}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-blue-700 hover:scale-105 transition-all z-50"
+        className="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full flex items-center justify-center shadow-lg transition-colors z-50 cursor-pointer"
       >
         {submissionMode === "chatbot" ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="22"
+            height="22"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -206,7 +253,7 @@ export default function UserDashboard() {
             <path d="m6 6 12 12" />
           </svg>
         ) : (
-          <Bot size={26} />
+          <Bot size={24} />
         )}
       </button>
     </div>
