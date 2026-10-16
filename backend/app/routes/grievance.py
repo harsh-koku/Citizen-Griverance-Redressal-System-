@@ -272,9 +272,10 @@ def update_grievance_status(
 
     # [NEW WORKER AUTOMATION] AI Verification before resolving
     if status.lower() == "resolved":
-        # Image Requirement Rule
-        if grievance.image_url:
-            if not resolution_proof_url:
+        clean_proof_url = resolution_proof_url.strip() if resolution_proof_url else None
+        # Image Requirement Rule (enforced for workers when citizen submitted a photo; admins can force resolve)
+        if grievance.image_url and user.role != "admin":
+            if not clean_proof_url:
                 raise HTTPException(
                     status_code=400, 
                     detail="Citizen provided a photo of the issue. You MUST upload a photo of the completed work to resolve this."
@@ -285,18 +286,23 @@ def update_grievance_status(
                 grievance.description, 
                 worker_note or "", 
                 citizen_image_url=grievance.image_url, 
-                worker_image_url=resolution_proof_url
+                worker_image_url=clean_proof_url
             )
             
             if not qa_result.get("is_valid"):
+                feedback = qa_result.get("qa_feedback") or "Ground work evidence does not visually confirm the issue was fixed."
                 raise HTTPException(
                     status_code=406, 
-                    detail=f"AI Vision Rejected Resolution: {qa_result.get('qa_feedback')} Please provide a valid photo."
+                    detail=f"AI Vision Rejected Resolution: {feedback} Please provide a valid photo."
                 )
             
             worker_note = f"[AI Vision Verified] {worker_note or ''}"
+        elif user.role == "admin":
+            worker_note = f"[Admin Resolution] {worker_note or ''}"
+        elif clean_proof_url:
+            worker_note = f"[Photo Attached] {worker_note or ''}"
         else:
-            worker_note = f"[No Photo Provided] {worker_note or ''}"
+            worker_note = f"[No Photo Required] {worker_note or ''}"
             
         # Status changes to Pending Citizen Confirmation
         status = "Pending Citizen Confirmation"

@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import api from "@/lib/api";
-import { Wrench, CheckCircle, Lightbulb, Image as ImageIcon } from "lucide-react";
+import { Wrench, CheckCircle, Lightbulb, Image as ImageIcon, Camera, AlertCircle, Info } from "lucide-react";
+import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
 // Map Imports
 const WorkerMap = dynamic(() => import("@/components/WorkerMap"), { ssr: false });
-
-
 
 interface Grievance {
   id: number;
@@ -21,6 +20,7 @@ interface Grievance {
   longitude: number | null;
   solution: string;
   status: string;
+  image_url?: string;
   created_at: string;
   user?: {
     id: number;
@@ -59,34 +59,51 @@ export default function WorkerDashboard() {
       }
     };
     fetchTasks();
-
-
   }, [router]);
 
-  const handleResolve = async (id: number) => {
-    if (isResolving[id]) return; // Prevent double clicks
-    setIsResolving(prev => ({ ...prev, [id]: true }));
-    try {
-      const proofUrl = proofUrls[id] || "";
-      const note = workerNotes[id] || "";
+  const handleResolve = async (task: Grievance) => {
+    if (isResolving[task.id]) return; // Prevent double clicks
 
-      await api.put(`/grievance/${id}/status`, null, {
+    // Proactive frontend validation: If citizen submitted photo, worker must attach resolution photo
+    if (task.image_url && !proofUrls[task.id]) {
+      toast.error(
+        "Citizen provided photo evidence for this issue. You must upload a photo of the completed work before resolving.",
+        { duration: 5000 }
+      );
+      return;
+    }
+
+    setIsResolving(prev => ({ ...prev, [task.id]: true }));
+    const toastId = toast.loading("Verifying resolution with AI Vision...");
+
+    try {
+      const proofUrl = proofUrls[task.id] || "";
+      const note = workerNotes[task.id] || "";
+
+      await api.put(`/grievance/${task.id}/status`, null, {
         params: { status: "Resolved", resolution_proof_url: proofUrl, worker_note: note }
       });
-      alert("Task marked as resolved!");
-      setTasks(tasks.map(t => t.id === id ? { ...t, status: "Resolved" } : t));
+
+      toast.success("Task resolved and submitted for citizen confirmation!", { id: toastId });
+      setTasks(tasks.map(t => t.id === task.id ? { ...t, status: "Resolved" } : t));
     } catch (error: any) {
-      // Extract the detailed message from the backend if it exists (e.g., AI Vision Rejection)
-      const errorMsg = error.response?.data?.detail || "Failed to update status.";
-      alert(errorMsg);
-      console.error(error);
+      let detail = error.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        detail = detail.map((d: any) => d.msg || JSON.stringify(d)).join(", ");
+      } else if (typeof detail === "object" && detail !== null) {
+        detail = JSON.stringify(detail);
+      }
+      const errorMsg = detail || "Failed to update status. Please try again.";
+      toast.error(errorMsg, { id: toastId, duration: 6000 });
+      console.error("Resolve error:", error);
     } finally {
-      setIsResolving(prev => ({ ...prev, [id]: false }));
+      setIsResolving(prev => ({ ...prev, [task.id]: false }));
     }
   };
 
   const handleImageUpload = async (id: number, file: File) => {
     setUploadingImageId(id);
+    const toastId = toast.loading("Uploading resolution photo proof...");
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -94,9 +111,10 @@ export default function WorkerDashboard() {
         headers: { "Content-Type": "multipart/form-data" }
       });
       setProofUrls(prev => ({ ...prev, [id]: res.data.image_url }));
+      toast.success("Photo attached successfully! Ready to resolve.", { id: toastId });
     } catch (err) {
       console.error("Upload failed", err);
-      alert("Failed to upload image.");
+      toast.error("Failed to upload image. Please try again.", { id: toastId });
     } finally {
       setUploadingImageId(null);
     }
@@ -152,6 +170,28 @@ export default function WorkerDashboard() {
 
                   <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 leading-relaxed">{task.description}</p>
 
+                  {/* Citizen Issue Photo Evidence (Before Image) */}
+                  {task.image_url && (
+                    <div className="mb-4 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                          <Camera size={14} className="text-blue-600 dark:text-blue-400" />
+                          Citizen Photo Evidence (Before)
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900 flex items-center gap-1">
+                          <AlertCircle size={10} /> Photo Proof Required
+                        </span>
+                      </div>
+                      <div className="relative max-h-52 w-full rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5 flex items-center justify-center">
+                        <img
+                          src={task.image_url.startsWith("http") ? task.image_url : `http://localhost:8000${task.image_url}`}
+                          alt="Citizen reported issue"
+                          className="max-h-52 w-full object-contain rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 p-4 rounded-lg mb-4">
                     <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase mb-2 flex items-center gap-1"><Lightbulb size={14} /> AI Recommended Fix:</h4>
                     <p className="text-sm text-blue-900 dark:text-blue-200 whitespace-pre-line" dangerouslySetInnerHTML={{ __html: task.solution.replace(/\*\*Short-term Action:\*\*/g, '<b>Short-term Action:</b>').replace(/\*\*Long-term Solution:\*\*/g, '<br/><b>Long-term Solution:</b>').replace(/\n/g, '<br/>') }} />
@@ -172,7 +212,22 @@ export default function WorkerDashboard() {
 
                   {/* Evidence Section */}
                   <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <h4 className="text-sm font-semibold mb-3 text-slate-900 dark:text-white">Resolution Evidence</h4>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Resolution Evidence</h4>
+                      {task.image_url && (
+                        <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                          <AlertCircle size={12} /> Photo proof mandatory
+                        </span>
+                      )}
+                    </div>
+
+                    {task.image_url && !proofUrls[task.id] && (
+                      <div className="mb-3 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
+                        <AlertCircle size={14} className="flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                        <span>Please attach a photo of your completed repair. The AI verification system validates this against the citizen photo before resolution.</span>
+                      </div>
+                    )}
+
                     <textarea
                       placeholder="Add notes about what you fixed..."
                       value={workerNotes[task.id] || ""}
@@ -197,10 +252,14 @@ export default function WorkerDashboard() {
                         {!proofUrls[task.id] ? (
                           <label
                             htmlFor={`file-${task.id}`}
-                            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200"
+                            className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm cursor-pointer transition text-slate-700 dark:text-slate-200 ${
+                              task.image_url 
+                                ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/60 font-medium' 
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+                            }`}
                           >
-                            <ImageIcon size={16} className="text-slate-500 dark:text-slate-400" />
-                            {uploadingImageId === task.id ? "Uploading..." : "Upload Photo Proof"}
+                            <ImageIcon size={16} className={task.image_url ? "text-amber-600" : "text-slate-500 dark:text-slate-400"} />
+                            {uploadingImageId === task.id ? "Uploading..." : task.image_url ? "Upload Required Photo Proof" : "Upload Photo Proof"}
                           </label>
                         ) : (
                           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
@@ -215,7 +274,7 @@ export default function WorkerDashboard() {
                         )}
                       </div>
                       <button
-                        onClick={() => handleResolve(task.id)}
+                        onClick={() => handleResolve(task)}
                         disabled={isResolving[task.id]}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition active:scale-[0.98] shadow-sm cursor-pointer ${
                           isResolving[task.id] 
