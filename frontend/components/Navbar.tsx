@@ -93,16 +93,16 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full bg-white/70 dark:bg-gray-900/70 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-700 z-40">
+      <nav className="fixed top-0 left-0 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800 z-40">
         <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
           <Logo size="md" showText={true} />
 
           <div className="flex items-center gap-4">
             {!isLoggedIn ? (
-              <div className="flex items-center gap-3 mr-4 border-r pr-4 border-gray-300 dark:border-gray-700">
+              <div className="flex items-center gap-3 mr-4 border-r pr-4 border-slate-200 dark:border-slate-800">
                 <button 
                   onClick={() => router.push("/auth/register")}
-                  className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-cyan-500 transition"
+                  className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
                 >
                   {t("Register")}
                 </button>
@@ -110,28 +110,28 @@ export default function Navbar() {
                 <div className="relative" ref={dropdownRef}>
                   <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                    className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer shadow-sm"
                   >
                     {t("Login")} <ChevronDown size={14} />
                   </button>
                   
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+                    <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col py-1">
                       <button 
                         onClick={() => { router.push("/auth/login/user"); setIsDropdownOpen(false); }}
-                        className="px-4 py-3 text-sm text-left text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                        className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
                       >
                         {t("User Login")}
                       </button>
                       <button 
                         onClick={() => { router.push("/auth/login/worker"); setIsDropdownOpen(false); }}
-                        className="px-4 py-3 text-sm text-left text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
+                        className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition border-t border-slate-100 dark:border-slate-800 cursor-pointer"
                       >
                         {t("Field Worker Login")}
                       </button>
                       <button 
                         onClick={() => { router.push("/auth/login/admin"); setIsDropdownOpen(false); }}
-                        className="px-4 py-3 text-sm text-left text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
+                        className="px-4 py-2.5 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition border-t border-slate-100 dark:border-slate-800 cursor-pointer"
                       >
                         {t("Admin Login")}
                       </button>
@@ -140,10 +140,10 @@ export default function Navbar() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3 mr-4 border-r pr-4 border-gray-300 dark:border-gray-700">
+              <div className="flex items-center gap-3 mr-4 border-r pr-4 border-slate-200 dark:border-slate-800">
                 <button 
                   onClick={() => router.push(`/${role}/dashboard`)}
-                  className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-cyan-500 transition"
+                  className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
                 >
                   {t("Dashboard")}
                 </button>

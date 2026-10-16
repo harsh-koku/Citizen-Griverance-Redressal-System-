@@ -23,12 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
+        className={`antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 min-h-[100dvh]`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LanguageProvider>
             <Navbar />
-            <main className="pt-[60px] min-h-screen">
+            <main className="pt-[60px] min-h-[calc(100dvh-60px)]">
               {children}
             </main>
             <Toaster position="top-right" richColors />

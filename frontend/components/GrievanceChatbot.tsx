@@ -237,7 +237,7 @@ export default function GrievanceChatbot({
       {/* Chat Area */}
       <div 
         ref={scrollRef} 
-        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900 scroll-smooth"
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950 scroll-smooth"
       >
         <AnimatePresence>
             {chat.map((msg, index) => (
@@ -249,15 +249,15 @@ export default function GrievanceChatbot({
                 className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
             >
                 {msg.sender === "bot" && (
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-cyan-500/40 shadow-sm bg-gray-900">
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-blue-500/40 shadow-sm bg-slate-900">
                         <NextImage src="/logo.png" alt="AI Bot" width={32} height={32} className="w-full h-full object-cover" />
                     </div>
                 )}
 
                 <div
-                className={`max-w-[80%] px-5 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                     msg.sender === "bot"
-                    ? "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-tl-none"
+                    ? "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-none"
                     : "bg-blue-600 text-white rounded-tr-none"
                 }`}
                 >
@@ -376,16 +376,16 @@ export default function GrievanceChatbot({
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="flex-1 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder-gray-400"
+            className="flex-1 bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder-slate-400 text-sm"
             placeholder={t("Type your message...")}
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !description.trim()}
-            className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg shadow-blue-200 dark:shadow-none"
+            className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-[0.98] disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
           >
-            <Send size={20} />
+            <Send size={18} />
           </button>
         </form>
       </div>

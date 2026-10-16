@@ -210,10 +210,10 @@ export default function ProfileModal({
               {initial}
             </div>
             <div className="mb-1">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
                 {name || t("User Profile")}
               </h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
                 <Mail size={12} /> {email || "No email available"}
               </p>
             </div>
@@ -227,29 +227,29 @@ export default function ProfileModal({
         {/* Scrollable Content */}
         <div className="p-6 overflow-y-auto flex-1 space-y-5">
           {/* Module-Specific Highlight Card */}
-          <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200/70 dark:border-gray-700/60 flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3">
+            <div className="p-2 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
               {roleMeta.icon}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                   {roleMeta.title}
                 </span>
                 {joinedDate && (
-                  <span className="text-[11px] text-gray-400 flex items-center gap-1">
+                  <span className="text-[11px] text-slate-400 flex items-center gap-1">
                     <Calendar size={11} /> {t("Joined")} {joinedDate}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {roleMeta.tagline}
               </p>
             </div>
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-10 text-gray-400 gap-2">
+            <div className="flex items-center justify-center py-10 text-slate-400 gap-2">
               <Loader2 size={18} className="animate-spin" />
               <span className="text-sm">{t("Loading profile details...")}</span>
             </div>
@@ -257,69 +257,69 @@ export default function ProfileModal({
             <form onSubmit={handleSave} className="space-y-4">
               {/* Full Name */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t("Full Name")}
                 </label>
-                <div className="flex items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 focus-within:ring-2 focus-within:ring-cyan-500 overflow-hidden px-3.5 py-1">
-                  <User size={16} className="text-gray-400 shrink-0 mr-2.5" />
+                <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden px-3.5 py-1">
+                  <User size={16} className="text-slate-400 shrink-0 mr-2.5" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your Name"
                     required
-                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
+                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               {/* Email (Read only) */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                   <span>{t("Email Address")}</span>
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                     <Check size={11} /> {t("Verified")}
                   </span>
                 </label>
-                <div className="flex items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900/50 overflow-hidden px-3.5 py-1 cursor-not-allowed">
-                  <Mail size={16} className="text-gray-400 shrink-0 mr-2.5" />
+                <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 overflow-hidden px-3.5 py-1 cursor-not-allowed">
+                  <Mail size={16} className="text-slate-400 shrink-0 mr-2.5" />
                   <input
                     type="email"
                     value={email}
                     disabled
-                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed"
                   />
                 </div>
               </div>
 
               {/* Contact Phone */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t("Contact Phone")}
                 </label>
-                <div className="flex items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 focus-within:ring-2 focus-within:ring-cyan-500 overflow-hidden px-3.5 py-1">
-                  <Phone size={16} className="text-gray-400 shrink-0 mr-2.5" />
+                <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden px-3.5 py-1">
+                  <Phone size={16} className="text-slate-400 shrink-0 mr-2.5" />
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
+                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               {/* Address / Primary Locality */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {role === "worker"
                     ? t("Assigned Station / Depot")
                     : role === "admin"
                     ? t("Office Jurisdiction")
                     : t("Residential Address / Locality")}
                 </label>
-                <div className="flex items-start rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 focus-within:ring-2 focus-within:ring-cyan-500 overflow-hidden px-3.5 py-2.5">
-                  <MapPin size={16} className="text-gray-400 shrink-0 mr-2.5 mt-0.5" />
+                <div className="flex items-start rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden px-3.5 py-2.5">
+                  <MapPin size={16} className="text-slate-400 shrink-0 mr-2.5 mt-0.5" />
                   <textarea
                     rows={2}
                     value={address}
@@ -331,10 +331,10 @@ export default function ProfileModal({
                         ? "Municipal Corporation HQ, Civil Lines"
                         : "e.g. Flat 302, Green Valley Apartments, Sitabuldi"
                     }
-                    className="w-full bg-transparent border-0 outline-none text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 resize-none p-0"
+                    className="w-full bg-transparent border-0 outline-none text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none p-0"
                   />
                 </div>
-                <p className="text-[11px] text-gray-400 mt-1">
+                <p className="text-[11px] text-slate-400 mt-1">
                   {role === "user"
                     ? t("Saving your address helps speed up your grievance lodging.")
                     : t("Your primary work and jurisdictional zone.")}
@@ -343,17 +343,17 @@ export default function ProfileModal({
 
               {/* City / Region */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t("City / Region")}
                 </label>
-                <div className="flex items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 focus-within:ring-2 focus-within:ring-cyan-500 overflow-hidden px-3.5 py-1">
-                  <Building2 size={16} className="text-gray-400 shrink-0 mr-2.5" />
+                <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden px-3.5 py-1">
+                  <Building2 size={16} className="text-slate-400 shrink-0 mr-2.5" />
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="Nagpur"
-                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
+                    className="w-full bg-transparent border-0 outline-none py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -362,7 +362,7 @@ export default function ProfileModal({
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer text-sm"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm transition-colors disabled:opacity-50 cursor-pointer text-sm"
               >
                 {saving ? (
                   <>
@@ -381,13 +381,13 @@ export default function ProfileModal({
         </div>
 
         {/* Modal Footer with Quick Links & Logout */}
-        <div className="px-6 py-3.5 bg-gray-50 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs">
+        <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
           <button
             onClick={() => {
               onClose();
               router.push(roleMeta.dashboardUrl);
             }}
-            className="inline-flex items-center gap-1 font-semibold text-cyan-600 dark:text-cyan-400 hover:underline"
+            className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
           >
             <span>{t("Go to Dashboard")}</span>
             <ExternalLink size={12} />
@@ -395,7 +395,7 @@ export default function ProfileModal({
 
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 font-bold text-red-500 hover:text-red-600 transition"
+            className="inline-flex items-center gap-1.5 font-bold text-red-500 hover:text-red-600 transition cursor-pointer"
           >
             <LogOut size={13} />
             <span>{t("Logout")}</span>

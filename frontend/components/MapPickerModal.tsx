@@ -79,14 +79,14 @@ export default function MapPickerModal({ onClose, onSelect }: MapPickerModalProp
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl flex flex-col overflow-hidden">
-        <div className="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">Select Location</h2>
-          <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 text-xl font-bold">&times;</button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl flex flex-col overflow-hidden">
+        <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">Select Location</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold cursor-pointer">&times;</button>
         </div>
         
-        <div className="h-[400px] w-full bg-gray-200 dark:bg-gray-700">
+        <div className="h-[400px] w-full bg-slate-100 dark:bg-slate-800">
           <MapContainer 
             center={initialCenter} 
             zoom={12} 
@@ -103,23 +103,23 @@ export default function MapPickerModal({ onClose, onSelect }: MapPickerModalProp
           </MapContainer>
         </div>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
           <div className="flex-1">
             {loading ? (
-              <span className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">Fetching address...</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 animate-pulse">Fetching address...</span>
             ) : position ? (
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{locationDetails.region}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Lat: {position.lat.toFixed(4)}, Lng: {position.lng.toFixed(4)}</p>
+                <p className="text-xs font-semibold text-slate-900 dark:text-white">{locationDetails.region}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Lat: {position.lat.toFixed(4)}, Lng: {position.lng.toFixed(4)}</p>
               </div>
             ) : (
-              <span className="text-sm text-gray-500 dark:text-gray-400">Click on the map to drop a pin</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">Click on the map to drop a pin</span>
             )}
           </div>
           <button 
             onClick={handleConfirm}
             disabled={!position || loading}
-            className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:dark:bg-gray-600 disabled:dark:text-gray-400 disabled:cursor-not-allowed transition"
+            className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-[0.98] disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed transition-colors text-xs font-semibold cursor-pointer shadow-sm"
           >
             Confirm Location
           </button>

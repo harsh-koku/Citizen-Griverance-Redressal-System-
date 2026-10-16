@@ -103,8 +103,8 @@ export default function WorkerDashboard() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="w-10 h-10 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
     </div>
   );
 
@@ -112,17 +112,17 @@ export default function WorkerDashboard() {
   const resolvedTasks = tasks.filter(t => t.status === "Resolved");
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
       <main className="p-6 max-w-7xl mx-auto">
 
         {/* Dashboard Title */}
         <div className="mb-8 flex items-center gap-3">
-          <div className="bg-orange-600 p-2 rounded-lg">
+          <div className="bg-amber-600 p-2 rounded-lg shadow-sm">
             <Wrench className="text-white w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Field Worker Portal</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and resolve assigned grievances.</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Field Worker Portal</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and resolve assigned grievances.</p>
           </div>
         </div>
 
@@ -130,54 +130,54 @@ export default function WorkerDashboard() {
 
           {/* Left Col: Task List */}
           <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-              <h2 className="text-2xl font-bold mb-2">Your Daily Assignments</h2>
-              <p className="text-gray-500 dark:text-gray-400">You have {pendingTasks.length} pending tasks to resolve.</p>
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+              <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Your Daily Assignments</h2>
+              <p className="text-slate-500 dark:text-slate-400">You have {pendingTasks.length} pending tasks to resolve.</p>
             </div>
 
             <div className="space-y-4">
               {pendingTasks.map((task) => (
-                <div key={task.id} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden">
-                  <div className={`absolute top-0 left-0 w-1 h-full ${task.priority === 'Critical' || task.priority === 'High' ? 'bg-red-500' : 'bg-orange-400'}`}></div>
+                <div key={task.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+                  <div className={`absolute top-0 left-0 w-1 h-full ${task.priority === 'Critical' || task.priority === 'High' ? 'bg-red-500' : 'bg-amber-500'}`}></div>
 
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">#{task.id} • {task.category}</span>
-                      <h3 className="font-semibold text-lg mt-2">{task.region || "Unknown Region"}</h3>
+                      <span className="text-xs font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900 px-2 py-0.5 rounded">#{task.id} • {task.category}</span>
+                      <h3 className="font-semibold text-lg mt-2 text-slate-900 dark:text-white">{task.region || "Unknown Region"}</h3>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full font-semibold ${task.priority === 'Critical' || task.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold border ${task.priority === 'Critical' || task.priority === 'High' ? 'bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300 border-red-200 dark:border-red-900' : 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900'}`}>
                       {task.priority} Priority
                     </span>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-relaxed">{task.description}</p>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 leading-relaxed">{task.description}</p>
 
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-lg mb-4">
+                  <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 p-4 rounded-lg mb-4">
                     <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase mb-2 flex items-center gap-1"><Lightbulb size={14} /> AI Recommended Fix:</h4>
-                    <p className="text-sm text-blue-800 dark:text-blue-200 whitespace-pre-line" dangerouslySetInnerHTML={{ __html: task.solution.replace(/\*\*Short-term Action:\*\*/g, '<b>Short-term Action:</b>').replace(/\*\*Long-term Solution:\*\*/g, '<br/><b>Long-term Solution:</b>').replace(/\n/g, '<br/>') }} />
+                    <p className="text-sm text-blue-900 dark:text-blue-200 whitespace-pre-line" dangerouslySetInnerHTML={{ __html: task.solution.replace(/\*\*Short-term Action:\*\*/g, '<b>Short-term Action:</b>').replace(/\*\*Long-term Solution:\*\*/g, '<br/><b>Long-term Solution:</b>').replace(/\n/g, '<br/>') }} />
                   </div>
 
                   {task.user && (
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4 border border-gray-200 dark:border-gray-700">
-                      <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-2">Citizen Details (Contact for Updates):</h4>
-                      <p className="text-sm font-semibold text-gray-800 dark:text-white">{task.user.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{task.user.email}</p>
-                      {task.user.phone && <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">📞 {task.user.phone}</p>}
+                    <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-lg mb-4 border border-slate-200 dark:border-slate-700">
+                      <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-2">Citizen Details (Contact for Updates):</h4>
+                      <p className="text-sm font-semibold text-slate-800 dark:text-white">{task.user.name}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{task.user.email}</p>
+                      {task.user.phone && <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">📞 {task.user.phone}</p>}
                     </div>
                   )}
 
-                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-50">
-                    <span className="text-xs text-gray-400">Received on {new Date(task.created_at).toLocaleDateString()}</span>
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-xs text-slate-400">Received on {new Date(task.created_at).toLocaleDateString()}</span>
                   </div>
 
                   {/* Evidence Section */}
-                  <div className="mt-4 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
-                    <h4 className="text-sm font-semibold mb-3">Resolution Evidence</h4>
+                  <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <h4 className="text-sm font-semibold mb-3 text-slate-900 dark:text-white">Resolution Evidence</h4>
                     <textarea
                       placeholder="Add notes about what you fixed..."
                       value={workerNotes[task.id] || ""}
                       onChange={(e) => setWorkerNotes(prev => ({ ...prev, [task.id]: e.target.value }))}
-                      className="w-full text-sm p-3 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg mb-3 outline-none focus:ring-1 focus:ring-green-500"
+                      className="w-full text-sm p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg mb-3 outline-none focus:ring-1 focus:ring-emerald-500 placeholder-slate-400"
                       rows={2}
                     />
 
@@ -197,17 +197,17 @@ export default function WorkerDashboard() {
                         {!proofUrls[task.id] ? (
                           <label
                             htmlFor={`file-${task.id}`}
-                            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200"
                           >
-                            <ImageIcon size={16} className="text-gray-500 dark:text-gray-400" />
+                            <ImageIcon size={16} className="text-slate-500 dark:text-slate-400" />
                             {uploadingImageId === task.id ? "Uploading..." : "Upload Photo Proof"}
                           </label>
                         ) : (
-                          <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
+                          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
                             <CheckCircle size={16} /> Photo Attached!
                             <button
                               onClick={() => setProofUrls(prev => { const newUrls = {...prev}; delete newUrls[task.id]; return newUrls; })}
-                              className="text-red-500 hover:text-red-700 underline ml-2 text-xs"
+                              className="text-red-500 hover:text-red-700 underline ml-2 text-xs cursor-pointer"
                             >
                               (Remove)
                             </button>
@@ -217,10 +217,10 @@ export default function WorkerDashboard() {
                       <button
                         onClick={() => handleResolve(task.id)}
                         disabled={isResolving[task.id]}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition active:scale-[0.98] shadow-sm cursor-pointer ${
                           isResolving[task.id] 
-                            ? 'bg-gray-400 cursor-not-allowed text-white' 
-                            : 'bg-green-600 hover:bg-green-700 text-white'
+                            ? 'bg-slate-400 cursor-not-allowed text-white' 
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                         }`}
                       >
                         {isResolving[task.id] ? (
@@ -240,10 +240,10 @@ export default function WorkerDashboard() {
               ))}
 
               {pendingTasks.length === 0 && (
-                <div className="bg-green-50 text-green-700 p-8 rounded-xl text-center border border-green-100">
-                  <CheckCircle className="mx-auto w-12 h-12 mb-3 text-green-400" />
+                <div className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 p-8 rounded-xl text-center border border-emerald-200 dark:border-emerald-900">
+                  <CheckCircle className="mx-auto w-12 h-12 mb-3 text-emerald-500" />
                   <h3 className="font-bold text-lg">All caught up!</h3>
-                  <p>You have no pending tasks right now.</p>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">You have no pending tasks right now.</p>
                 </div>
               )}
             </div>
@@ -251,22 +251,22 @@ export default function WorkerDashboard() {
 
           {/* Right Col: Map & Resolved */}
           <div className="space-y-6 sticky top-6 h-fit">
-            <div className="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-[500px] z-10 relative">
+            <div className="bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 h-[500px] z-10 relative">
               <WorkerMap tasks={pendingTasks} />
             </div>
 
             {/* Resolved Tasks summary */}
             {resolvedTasks.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <CheckCircle className="text-green-500" size={20} />
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                  <CheckCircle className="text-emerald-600" size={20} />
                   Recently Resolved ({resolvedTasks.length})
                 </h3>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {resolvedTasks.map(task => (
-                    <div key={task.id} className="text-sm p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 flex justify-between">
-                      <span>#{task.id} - {task.region}</span>
-                      <span className="text-green-600 font-semibold">Done</span>
+                    <div key={task.id} className="text-sm p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 flex justify-between">
+                      <span className="text-slate-800 dark:text-slate-200">#{task.id} - {task.region}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Done</span>
                     </div>
                   ))}
                 </div>

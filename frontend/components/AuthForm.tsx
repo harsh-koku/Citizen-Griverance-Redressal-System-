@@ -71,16 +71,16 @@ export default function AuthForm({ type, role }: AuthFormProps) {
     <div className="relative min-h-[calc(100vh-60px)] flex flex-col items-center justify-center">
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md p-8 mt-20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md p-8 mt-12 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800"
       >
         <div className="flex justify-center mb-5">
           <Logo size="lg" showText={false} />
         </div>
 
-        <h2 className="text-3xl font-semibold text-center text-gray-900 dark:text-white mb-6">
+        <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-white mb-6">
           {type === "register"
             ? "Create Your Account"
             : role === "admin"
@@ -97,7 +97,7 @@ export default function AuthForm({ type, role }: AuthFormProps) {
               placeholder="Full Name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
               required
             />
           )}
@@ -108,17 +108,17 @@ export default function AuthForm({ type, role }: AuthFormProps) {
               placeholder="Contact Number"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
               required
             />
           )}
 
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email Address"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
             required
           />
 
@@ -128,51 +128,51 @@ export default function AuthForm({ type, role }: AuthFormProps) {
               placeholder="Password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-medium transition-all shadow-lg hover:shadow-xl"
+            className="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] disabled:bg-blue-400 text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm cursor-pointer mt-1"
           >
             {loading
               ? "Processing..."
               : type === "register"
-              ? "Register"
-              : "Login"}
+              ? "Create Account"
+              : "Sign In"}
           </button>
         </form>
 
         {role === "user" && (
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+          <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
             {type === "register" ? (
               <>
                 Already have an account?{" "}
                 <span
                   onClick={() => router.push("/auth/login/user")}
-                  className="text-blue-600 cursor-pointer hover:underline"
+                  className="text-blue-600 dark:text-blue-400 font-semibold cursor-pointer hover:underline"
                 >
-                  Login here
+                  Sign in here
                 </span>
               </>
             ) : (
               <>
-                New user?{" "}
+                New to the platform?{" "}
                 <span
                   onClick={() => router.push("/auth/register")}
-                  className="text-blue-600 cursor-pointer hover:underline"
+                  className="text-blue-600 dark:text-blue-400 font-semibold cursor-pointer hover:underline"
                 >
-                  Register now
+                  Register an account
                 </span>
               </>
             )}

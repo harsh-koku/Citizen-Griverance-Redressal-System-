@@ -208,28 +208,28 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
   };
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
-      <div className="mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("Report a Grievance")}</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t("Please provide details about the issue you are facing.")}</p>
+    <div className="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col">
+      <div className="mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t("Report a Grievance")}</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("Please provide details about the issue you are facing.")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2">
         <div id="step-description">
           <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t("Description")} <span className="text-red-500">*</span>
             </label>
             <button
               type="button"
               onClick={toggleVoiceRecording}
               disabled={transcribingVoice}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border cursor-pointer ${
                 isRecordingVoice
-                  ? 'bg-red-500 border-red-600 text-white animate-pulse shadow-md'
+                  ? 'bg-red-500 border-red-600 text-white animate-pulse shadow-sm'
                   : transcribingVoice
                   ? 'bg-amber-100 border-amber-300 text-amber-800'
-                  : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300'
+                  : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/60 dark:border-blue-800 dark:text-blue-300'
               }`}
             >
               {transcribingVoice ? (
@@ -251,17 +251,17 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Water supply broken in Nagpur since yesterday..."
-            className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 rounded-xl min-h-[120px] outline-none resize-none text-gray-800 dark:text-gray-100"
+            className="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl min-h-[120px] outline-none resize-none text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 text-sm"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t("Category")}</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t("Category")}</label>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-100"
+            className="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 text-sm"
           >
             <option value="">{t("Auto-detect using AI")}</option>
             <option value="Infrastructure">{t("Infrastructure")}</option>
@@ -273,17 +273,17 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
         </div>
 
         <div id="step-location-evidence" className="flex flex-col gap-3">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">{t("Location & Evidence")} <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">{t("Location & Evidence")} <span className="text-red-500">*</span></label>
           <div className="flex flex-wrap gap-4">
 
             {/* Map Button */}
             <button
               type="button"
               onClick={() => setShowMapModal(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer text-slate-700 dark:text-slate-200 active:scale-[0.98]"
             >
-              <MapPin className="text-blue-600" size={20} />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Select Location")} <span className="text-red-500">*</span></span>
+              <MapPin className="text-blue-600" size={18} />
+              <span className="text-xs font-semibold">{t("Select Location")} <span className="text-red-500">*</span></span>
             </button>
 
             {/* Image Button */}
@@ -315,10 +315,10 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingImage}
-              className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer disabled:opacity-50 text-slate-700 dark:text-slate-200 active:scale-[0.98]"
             >
-              <ImageIcon className="text-blue-600" size={20} />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{uploadingImage ? t("Uploading...") : t("Add Image")}</span>
+              <ImageIcon className="text-blue-600" size={18} />
+              <span className="text-xs font-semibold">{uploadingImage ? t("Uploading...") : t("Add Image")}</span>
             </button>
           </div>
 
@@ -326,15 +326,15 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
           {(attachedLocation || attachedImage) && (
             <div className="flex flex-col gap-2 mt-2">
               {attachedLocation && (
-                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <span className="text-sm flex items-center gap-2"><MapPin size={16} /> {attachedLocation.region}</span>
-                  <button type="button" onClick={() => setAttachedLocation(null)} className="text-blue-500 hover:text-red-500"><X size={16} /></button>
+                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-900">
+                  <span className="text-xs flex items-center gap-2"><MapPin size={14} /> {attachedLocation.region}</span>
+                  <button type="button" onClick={() => setAttachedLocation(null)} className="text-blue-500 hover:text-red-500 cursor-pointer"><X size={14} /></button>
                 </div>
               )}
               {attachedImage && (
-                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <span className="text-sm flex items-center gap-2"><ImageIcon size={16} /> Image Attached</span>
-                  <button type="button" onClick={() => setAttachedImage(null)} className="text-blue-500 hover:text-red-500"><X size={16} /></button>
+                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-900">
+                  <span className="text-xs flex items-center gap-2"><ImageIcon size={14} /> Image Attached</span>
+                  <button type="button" onClick={() => setAttachedImage(null)} className="text-blue-500 hover:text-red-500 cursor-pointer"><X size={14} /></button>
                 </div>
               )}
             </div>
@@ -342,8 +342,8 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
 
           {/* Duplicate Prevention Card */}
           {duplicateInfo && (
-            <div className="p-3.5 bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl text-amber-900 dark:text-amber-200 text-sm flex items-start gap-2.5 shadow-sm">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5 shadow-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
               <div className="flex-1">
                 <span className="font-bold text-amber-800 dark:text-amber-300">
                   Existing Report Found Nearby (#{duplicateInfo.duplicate_id})
@@ -351,7 +351,7 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
                 <p className="text-xs text-amber-700 dark:text-amber-300/90 mt-1 leading-relaxed">
                   A complaint about <strong>{duplicateInfo.category}</strong> was reported approximately{" "}
                   <strong>{duplicateInfo.distance_meters} meters away</strong> and is currently{" "}
-                  <span className="px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-800 font-semibold">{duplicateInfo.status}</span>.
+                  <span className="px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-900 font-semibold">{duplicateInfo.status}</span>.
                 </p>
                 {duplicateInfo.description_snippet && (
                   <p className="text-xs italic text-amber-600 dark:text-amber-400/80 mt-1">
@@ -369,15 +369,15 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
         <div className="pt-4">
           <button
             type="submit"
-            className="w-full flex justify-center items-center gap-2 bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-lg"
+            className="w-full flex justify-center items-center gap-2 bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-colors shadow-sm disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed font-semibold text-sm cursor-pointer"
             disabled={loading || !description.trim() || !attachedLocation}
           >
-            <Send size={20} />
+            <Send size={16} />
             {loading ? t("Submitting...") : !attachedLocation ? t("Please Select Location") : t("Submit Grievance")}
           </button>
 
-          {message && <p className="mt-4 text-center text-sm font-medium text-green-600 bg-green-50 p-2 rounded-lg border border-green-200">{message}</p>}
-          {errorMsg && <p className="mt-4 text-center text-sm font-medium text-red-600 bg-red-50 p-2 rounded-lg border border-red-200">{errorMsg}</p>}
+          {message && <p className="mt-4 text-center text-xs font-medium text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-200 dark:border-emerald-900">{message}</p>}
+          {errorMsg && <p className="mt-4 text-center text-xs font-medium text-red-700 bg-red-50 dark:bg-red-950/40 p-2.5 rounded-lg border border-red-200 dark:border-red-900">{errorMsg}</p>}
         </div>
       </form>
 
