@@ -189,29 +189,31 @@ export default function Navbar() {
             <div className="relative hidden md:block" ref={langDropdownRef}>
               <button 
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className="flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-cyan-500 transition font-medium text-sm"
+                className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer"
               >
-                <Globe size={18} /> {language === "en" ? "English" : language === "hi" ? "?????" : "?????"} <ChevronDown size={14} />
+                <Globe size={15} /> 
+                <span>{language === "en" ? "English" : language === "hi" ? "हिन्दी" : "मराठी"}</span> 
+                <ChevronDown size={13} />
               </button>
               {isLangDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+                <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col py-1">
                   <button 
                     onClick={() => { setLanguage("en"); setIsLangDropdownOpen(false); }}
-                    className={`px-4 py-2 text-sm text-left transition ${language === "en" ? "bg-cyan-50 text-cyan-600 dark:bg-gray-700 dark:text-cyan-400 font-semibold" : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
+                    className={`px-3.5 py-2 text-xs text-left transition cursor-pointer ${language === "en" ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-semibold" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                   >
                     English
                   </button>
                   <button 
                     onClick={() => { setLanguage("hi"); setIsLangDropdownOpen(false); }}
-                    className={`px-4 py-2 text-sm text-left transition ${language === "hi" ? "bg-cyan-50 text-cyan-600 dark:bg-gray-700 dark:text-cyan-400 font-semibold" : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
+                    className={`px-3.5 py-2 text-xs text-left transition cursor-pointer ${language === "hi" ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-semibold" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                   >
-                    ????? (Hindi)
+                    हिन्दी (Hindi)
                   </button>
                   <button 
                     onClick={() => { setLanguage("mr"); setIsLangDropdownOpen(false); }}
-                    className={`px-4 py-2 text-sm text-left transition ${language === "mr" ? "bg-cyan-50 text-cyan-600 dark:bg-gray-700 dark:text-cyan-400 font-semibold" : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
+                    className={`px-3.5 py-2 text-xs text-left transition cursor-pointer ${language === "mr" ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-semibold" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                   >
-                    ????? (Marathi)
+                    मराठी (Marathi)
                   </button>
                 </div>
               )}

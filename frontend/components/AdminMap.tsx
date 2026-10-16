@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Fragment } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, CircleMarker } from "react-leaflet";
+import { Flame, Layers, MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
 // Fix Leaflet's default icon path issues in Next.js/Webpack
@@ -102,7 +103,7 @@ function ClusterHotspotsOverlay({ clusters }: { clusters: ClusterHotspot[] }) {
               <Popup>
                 <div className="text-sm font-sans min-w-[210px] p-1">
                   <div className="flex items-center gap-1.5 font-bold text-gray-900 border-b pb-1.5 mb-2">
-                    <span className="text-base">🔥</span>
+                    <Flame size={15} className="text-red-500 flex-shrink-0" />
                     <span>AI Cluster Hotspot #{c.cluster_id + 1}</span>
                   </div>
                   <p className="text-xs text-gray-600 mb-2 leading-relaxed">
@@ -116,7 +117,7 @@ function ClusterHotspotsOverlay({ clusters }: { clusters: ClusterHotspot[] }) {
                   </div>
                   <button
                     onClick={() => map.flyTo([c.latitude, c.longitude], 16, { duration: 1 })}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-1.5 px-3 rounded shadow transition"
+                    className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-medium py-1.5 px-3 rounded shadow transition cursor-pointer"
                   >
                     Focus Centroid Area
                   </button>
@@ -145,27 +146,30 @@ export default function AdminMap({
     return (
         <div className="relative w-full h-full">
             {/* Interactive Layer Toggle Overlay */}
-            <div className="absolute top-3 right-3 z-[1000] bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-md border border-gray-200 dark:border-gray-700 rounded-lg p-1 flex gap-1 text-xs font-medium">
+            <div className="absolute top-3 right-3 z-[1000] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-md border border-slate-200 dark:border-slate-800 rounded-lg p-1 flex gap-1 text-xs font-medium">
                 <button
                     type="button"
                     onClick={() => setLayerMode("both")}
-                    className={`px-2.5 py-1 rounded transition ${layerMode === "both" ? "bg-blue-600 text-white shadow-sm" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
+                    className={`px-2.5 py-1 rounded transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${layerMode === "both" ? "bg-blue-600 text-white shadow-sm" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                 >
-                    🗺️ Both ({grievances.length} / {clusterHotspots.length})
+                    <Layers size={13} />
+                    <span>Both ({grievances.length} / {clusterHotspots.length})</span>
                 </button>
                 <button
                     type="button"
                     onClick={() => setLayerMode("clusters")}
-                    className={`px-2.5 py-1 rounded transition ${layerMode === "clusters" ? "bg-red-600 text-white shadow-sm" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
+                    className={`px-2.5 py-1 rounded transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${layerMode === "clusters" ? "bg-red-600 text-white shadow-sm" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                 >
-                    🔥 Clusters ({clusterHotspots.length})
+                    <Flame size={13} />
+                    <span>Clusters ({clusterHotspots.length})</span>
                 </button>
                 <button
                     type="button"
                     onClick={() => setLayerMode("markers")}
-                    className={`px-2.5 py-1 rounded transition ${layerMode === "markers" ? "bg-indigo-600 text-white shadow-sm" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
+                    className={`px-2.5 py-1 rounded transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${layerMode === "markers" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                 >
-                    📍 Pins ({grievances.length})
+                    <MapPin size={13} />
+                    <span>Pins ({grievances.length})</span>
                 </button>
             </div>
 

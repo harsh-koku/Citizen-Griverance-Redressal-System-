@@ -66,28 +66,24 @@ export default function UserDashboard() {
       targetId: "step-description",
       title: "1. Add Complaint Details",
       description: "Type your grievance description here. You can also use Voice Typing to dictate your complaint in Hindi, Marathi, or English.",
-      emoji: "??",
       position: "bottom",
     },
     {
       targetId: "step-location-evidence",
       title: "2. Pin Location & Add Photo",
       description: "Click 'Select Location' to drop a pin on the interactive map, and 'Add Image' to attach photos of the issue.",
-      emoji: "??",
       position: "top",
     },
     {
       targetId: "step-grievances-list",
       title: "3. Track All Your Complaints",
       description: "All your submitted complaints appear here in real-time. You can monitor progress from Pending to Resolved.",
-      emoji: "??",
       position: "left",
     },
     {
       targetId: "step-ai-assistant",
       title: "4. Need Help? Use AI Chatbot",
       description: "Click this button anytime to chat with our AI assistant who can help file your grievance step-by-step.",
-      emoji: "🤖",
       position: "left",
     },
   ];
