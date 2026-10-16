@@ -4,10 +4,14 @@ from passlib.context import CryptContext
 from app.db.models import User
 
 
-#JWT Settings
-SECRET_KEY = "secretigrsbackendkey"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
+import hmac
+import hashlib
+from app.config import settings
+
+# JWT Settings
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 #Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -34,3 +38,15 @@ def decode_token(token: str):
         return payload
     except JWTError:
         return None
+
+def generate_feedback_token(grievance_id: int, action: str) -> str:
+    """Generate a tamper-proof HMAC token for email confirmation actions."""
+    message = f"grievance:{grievance_id}:action:{action.lower()}"
+    return hmac.new(SECRET_KEY.encode(), message.encode(), hashlib.sha256).hexdigest()
+
+def verify_feedback_token(grievance_id: int, action: str, token: str) -> bool:
+    """Verify an HMAC token for email confirmation actions."""
+    if not token:
+        return False
+    expected = generate_feedback_token(grievance_id, action)
+    return hmac.compare_digest(expected, token)

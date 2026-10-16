@@ -78,13 +78,16 @@ def send_status_update_email(to_email: str, grievance_id: int, new_status: str, 
     # Determine if we should show the confirmation buttons
     feedback_buttons = ""
     if new_status in ["Pending Citizen Confirmation", "Resolved"]:
+        from app.auth.utils import generate_feedback_token
+        accept_token = generate_feedback_token(grievance_id, "true")
+        reject_token = generate_feedback_token(grievance_id, "false")
         feedback_buttons = f"""
             <div style="margin-top: 30px; padding: 20px; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; text-align: center;">
                 <h3 style="margin-top: 0; color: #166534;">Is the issue fixed?</h3>
                 <p style="color: #15803d; font-size: 14px;">The field worker has marked this grievance as resolved. Please confirm.</p>
                 <div style="margin-top: 20px;">
-                    <a href="http://localhost:8000/grievance/{grievance_id}/feedback?accepted=true" style="display: inline-block; padding: 12px 24px; background-color: #16a34a; color: white; text-decoration: none; font-weight: bold; border-radius: 6px; margin-right: 15px;">Yes, it is fixed (Close)</a>
-                    <a href="http://localhost:8000/grievance/{grievance_id}/feedback?accepted=false" style="display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; font-weight: bold; border-radius: 6px;">No, not fixed (Reopen)</a>
+                    <a href="http://localhost:8000/grievance/{grievance_id}/feedback?accepted=true&token={accept_token}" style="display: inline-block; padding: 12px 24px; background-color: #16a34a; color: white; text-decoration: none; font-weight: bold; border-radius: 6px; margin-right: 15px;">Yes, it is fixed (Close)</a>
+                    <a href="http://localhost:8000/grievance/{grievance_id}/feedback?accepted=false&token={reject_token}" style="display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; font-weight: bold; border-radius: 6px;">No, not fixed (Reopen)</a>
                 </div>
             </div>
         """

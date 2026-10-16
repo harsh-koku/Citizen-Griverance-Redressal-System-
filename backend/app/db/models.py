@@ -33,8 +33,8 @@ class Grievance(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     description = Column(Text)
-    category = Column(String(100))
-    priority = Column(String(50))
+    category = Column(String(100), index=True)
+    priority = Column(String(50), index=True)
     region = Column(String(150))
     state = Column(String(100), nullable=True)
     city = Column(String(100), nullable=True)
@@ -44,20 +44,20 @@ class Grievance(Base):
     longitude = Column(String(50))
     image_url = Column(String(255), nullable=True)
     solution = Column(Text)
-    status = Column(String(50), default="Pending")
+    status = Column(String(50), default="Pending", index=True)
     
     # Fraud & Spam Detection
     trust_score = Column(Integer, default=100)
     is_spam = Column(Integer, default=0) # using 0/1 for boolean to avoid cross-db issues
     
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     
     # User who filed the grievance
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
     user = relationship("User", foreign_keys=[user_id], backref="grievances")
     
     # Worker assigned to resolve it
-    assigned_worker_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assigned_worker_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     assigned_worker = relationship("User", foreign_keys=[assigned_worker_id])
     
     # Worker updates

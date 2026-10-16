@@ -1,10 +1,8 @@
-import os
-from dotenv import load_dotenv
 from groq import Groq
 import json
+from app.config import settings
 
-load_dotenv()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(api_key=settings.GROQ_API_KEY)
 
 def analyze_fraud_and_spam(description: str) -> dict:
     """
@@ -29,7 +27,7 @@ def analyze_fraud_and_spam(description: str) -> dict:
     """
     try:
         completion = client.chat.completions.create(
-            model="openai/gpt-oss-20b",
+            model=settings.LLM_MODEL,
             messages=[
                 {"role": "system", "content": "You output JSON only."},
                 {"role": "user", "content": prompt}

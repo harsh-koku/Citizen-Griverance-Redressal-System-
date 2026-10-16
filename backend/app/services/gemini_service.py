@@ -1,15 +1,12 @@
 from groq import Groq
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from app.config import settings
 
 # Initialize Groq client
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(api_key=settings.GROQ_API_KEY)
 
 def generate_solution(grievance_text: str):
     """
-    Generates a structured short-term and long-term solution using Groq (Llama 3).
+    Generates a structured short-term and long-term solution using Groq LLM.
     """
     try:
         prompt = (
@@ -21,7 +18,7 @@ def generate_solution(grievance_text: str):
         )
         
         completion = client.chat.completions.create(
-            model="openai/gpt-oss-20b",
+            model=settings.LLM_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=1024
@@ -37,7 +34,7 @@ def generate_analytics_summary(prompt_text: str):
     """
     try:
         completion = client.chat.completions.create(
-            model="openai/gpt-oss-20b",
+            model=settings.LLM_MODEL,
             messages=[{"role": "user", "content": prompt_text}],
             temperature=0.7,
             max_tokens=1024

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User, MapPin, Image as ImageIcon, X, Mic, MicOff } from "lucide-react"; // Make sure to install lucide-react if not present
+import NextImage from "next/image";
 import api from "@/lib/api";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/context/LanguageContext";
@@ -248,8 +249,8 @@ export default function GrievanceChatbot({
                 className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
             >
                 {msg.sender === "bot" && (
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Bot size={18} className="text-blue-600" />
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-cyan-500/40 shadow-sm bg-gray-900">
+                        <NextImage src="/logo.png" alt="AI Bot" width={32} height={32} className="w-full h-full object-cover" />
                     </div>
                 )}
 
@@ -280,8 +281,8 @@ export default function GrievanceChatbot({
             animate={{ opacity: 1 }}
             className="flex gap-3 items-center"
           >
-             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <Bot size={18} className="text-blue-600" />
+             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-cyan-500/40 shadow-sm bg-gray-900">
+                <NextImage src="/logo.png" alt="AI Bot" width={32} height={32} className="w-full h-full object-cover" />
             </div>
             <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-none border border-gray-200 dark:border-gray-700 flex gap-2">
                 <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>

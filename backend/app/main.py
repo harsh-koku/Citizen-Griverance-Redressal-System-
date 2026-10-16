@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import grievance, analytics
@@ -7,21 +8,22 @@ from app.routes import ai_router
 
 
 from fastapi.staticfiles import StaticFiles
+from app.config import settings
 
 app = FastAPI(
-    title="AI-Powered Grievance Management System",
+    title=settings.APP_NAME,
     description="Backend for IGRS — powered by NLP, Gemini AI, and analytics",
-    version="1.0.0",
+    version=settings.APP_VERSION,
 )
 
-# Mount the uploads folder so frontend can access images
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Ensure upload directory exists and mount static files
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
-#Frontend calling APIs
-origin = ["*"]
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origin,
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

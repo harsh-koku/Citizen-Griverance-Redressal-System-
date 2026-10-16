@@ -1,18 +1,18 @@
 import os
 import json
 import base64
-from dotenv import load_dotenv
 from groq import Groq
+from app.config import settings
 
-load_dotenv()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(api_key=settings.GROQ_API_KEY)
 
 def get_base64_image(url: str):
-    if not url: return None
+    if not url:
+        return None
     try:
         # Extract filename from localhost url
         filename = url.split("/")[-1]
-        filepath = os.path.join("uploads", filename)
+        filepath = os.path.join(settings.UPLOAD_DIR, filename)
         if os.path.exists(filepath):
             with open(filepath, "rb") as image_file:
                 return base64.b64encode(image_file.read()).decode('utf-8')
@@ -52,7 +52,7 @@ def verify_worker_resolution(grievance_desc: str, worker_note: str, citizen_imag
 
     try:
         completion = client.chat.completions.create(
-            model="qwen/qwen3.8-27b", # Use a Vision-capable model from the list
+            model=settings.VISION_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": content_list}
@@ -65,7 +65,7 @@ def verify_worker_resolution(grievance_desc: str, worker_note: str, citizen_imag
         return parsed
     except Exception as e:
         print("Verification Agent AI Error:", e)
-        # Fail closed on exceptions/rate limits so invalid resolutions don't slip through!
+        # Fail closed on exceptions/rate limits so invalid resolutions don't slip through
         return {
             "is_valid": False, 
             "qa_feedback": "AI Verification Services are currently busy or rate-limited. Please wait a moment and try again."

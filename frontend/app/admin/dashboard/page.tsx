@@ -15,7 +15,10 @@ import {
   MapPin,
   Eye,
   X,
-  Lightbulb
+  Lightbulb,
+  Flame,
+  Layers,
+  Sparkles
 } from "lucide-react";
 import {
   BarChart,
@@ -79,6 +82,24 @@ export default function AdminDashboard() {
   const [forecastSummary, setForecastSummary] = useState("");
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
+  // Geospatial Hotspot Clusters State (DBSCAN)
+  const [clusterHotspots, setClusterHotspots] = useState<any[]>([]);
+  const [clustersLoading, setClustersLoading] = useState(false);
+
+  const fetchHotspots = async () => {
+    setClustersLoading(true);
+    try {
+      const res = await api.get("/analytics/hotspots?limit=15&use_clustering=true");
+      if (res.data?.cluster_hotspots) {
+        setClusterHotspots(res.data.cluster_hotspots);
+      }
+    } catch (err) {
+      console.warn("Failed to load geospatial cluster hotspots", err);
+    } finally {
+      setClustersLoading(false);
+    }
+  };
+
   // --- 1. Fetch Data on Load ---
   useEffect(() => {
     const init = async () => {
@@ -96,6 +117,9 @@ export default function AdminDashboard() {
 
         const workersRes = await api.get("/auth/workers");
         setWorkers(workersRes.data);
+
+        // Pre-fetch cluster hotspots for map
+        fetchHotspots();
       } catch (error) {
         console.error("Failed to load admin data", error);
       } finally {
@@ -106,7 +130,14 @@ export default function AdminDashboard() {
 
   }, [router]);
 
-  // --- 2. Fetch Forecast when Analytics Tab is active ---
+  // --- 2. Fetch Map Hotspots when Map Tab is active ---
+  useEffect(() => {
+    if (activeTab === "map") {
+      fetchHotspots();
+    }
+  }, [activeTab]);
+
+  // --- 3. Fetch Forecast when Analytics Tab is active ---
   useEffect(() => {
     if (activeTab === "analytics") {
       fetchForecast(selectedCategory);
@@ -441,8 +472,64 @@ export default function AdminDashboard() {
 
         {/* --- VIEW: MAP --- */}
         {activeTab === "map" && (
-          <div className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg h-[600px] z-0 relative">
-            <AdminMap focusedLocation={focusedLocation} grievances={filteredGrievances} />
+          <div className="space-y-4">
+            {/* AI Hotspots Summary Banner */}
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-red-50 dark:bg-red-950/40 text-red-600 rounded-lg">
+                  <Flame className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+                      AI Geospatial Cluster Hotspots
+                    </h3>
+                    <span className="text-[10px] bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full font-semibold">
+                      DBSCAN Haversine
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    Aggregated micro-hotspots within a 1.5 km spatial tolerance radius.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center flex-wrap gap-2.5 text-xs">
+                <div className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-gray-500" />
+                  <span>{clusterHotspots.length} Clusters Found</span>
+                </div>
+
+                {clusterHotspots.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => jumpToMap(clusterHotspots[0].latitude, clusterHotspots[0].longitude)}
+                    className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 rounded-lg font-medium flex items-center gap-1.5 transition"
+                    title="Jump to highest density hotspot"
+                  >
+                    <Flame className="w-3.5 h-3.5 text-red-600" />
+                    <span>Peak Zone: {clusterHotspots[0].complaint_density} Issues (Focus)</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={fetchHotspots}
+                  disabled={clustersLoading}
+                  className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-lg font-medium transition disabled:opacity-50"
+                >
+                  {clustersLoading ? "Scanning..." : "Recalculate Clusters"}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg h-[620px] z-0 relative">
+              <AdminMap 
+                focusedLocation={focusedLocation} 
+                grievances={filteredGrievances} 
+                clusterHotspots={clusterHotspots}
+              />
+            </div>
           </div>
         )}
 

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from app.auth.dependencies import require_admin
 from app.services.analytics_service import generate_forecast
 from app.services.retrain_service import retrain_forecast_models
 from app.services.hotspot_service import detect_hotspots
@@ -16,8 +17,8 @@ def get_forecast(category: str):
 
 
 @router.post("/retrain")
-def retrain_model():
-    """Force retraining using real grievance data"""
+def retrain_model(admin=Depends(require_admin)):
+    """Force retraining using real grievance data (Admin only)"""
     success = retrain_forecast_models()
     if not success:
         return {"message": "Not enough data yet. Using trained data model."}

@@ -6,6 +6,7 @@ import { AxiosError } from "axios";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import Logo from "./Logo";
 
 interface AuthFormProps {
   type: "login" | "register";
@@ -37,16 +38,30 @@ export default function AuthForm({ type, role }: AuthFormProps) {
 
       localStorage.setItem("token", access_token);
       localStorage.setItem("role", role);
+      if (form.name) {
+        localStorage.setItem("username", form.name);
+      }
+      if (form.email) {
+        localStorage.setItem("email", form.email);
+      }
+      if (form.phone) {
+        localStorage.setItem("phone", form.phone);
+      }
 
       toast.success("Success! Redirecting...", { id: loadingToast });
 
       setTimeout(() => {
         const targetPath = role === "admin" ? "/admin/dashboard" : role === "worker" ? "/worker/dashboard" : "/user/dashboard";
         router.push(targetPath);
-      }, 1500);
+      }, 400);
     } catch (err) {
       const error = err as AxiosError<{ detail?: string }>;
-      toast.error(error.response?.data?.detail || "Something went wrong", { id: loadingToast });
+      const detail = error.response?.data?.detail;
+      if (detail === "Email already registered") {
+        toast.error("This email is already registered! Please login instead.", { id: loadingToast });
+      } else {
+        toast.error(detail || "Something went wrong. Please check your credentials.", { id: loadingToast });
+      }
     } finally {
       setLoading(false);
     }
@@ -61,6 +76,10 @@ export default function AuthForm({ type, role }: AuthFormProps) {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md p-8 mt-20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700"
       >
+        <div className="flex justify-center mb-5">
+          <Logo size="lg" showText={false} />
+        </div>
+
         <h2 className="text-3xl font-semibold text-center text-gray-900 dark:text-white mb-6">
           {type === "register"
             ? "Create Your Account"

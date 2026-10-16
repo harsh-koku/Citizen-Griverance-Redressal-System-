@@ -1,6 +1,5 @@
 import pandas as pd
 from datetime import timedelta
-from fastapi import HTTPException
 from app.services.gemini_service import generate_analytics_summary
 from app.services.forecast_manager import get_forecast_model
 

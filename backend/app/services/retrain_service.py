@@ -2,7 +2,7 @@ import joblib
 from prophet import Prophet
 import os
 from app.utils.aggregate_data import fetch_aggregated_data
-from app.db.connection import get_db
+from app.db.connection import SessionLocal
 from app.services.forecast_manager import update_forecast_cache
 
 def retrain_forecast_models():
@@ -10,8 +10,11 @@ def retrain_forecast_models():
     Retrains Prophet models using real grievance data if enough exists.
     Falls back to trained dataset otherwise.
     """
-    db = next(get_db())
-    df = fetch_aggregated_data(db)
+    db = SessionLocal()
+    try:
+        df = fetch_aggregated_data(db)
+    finally:
+        db.close()
 
     if df is None or len(df["date"].unique()) < 60:
         print("Not enough real data for retraining. Using pretrained dataset.")

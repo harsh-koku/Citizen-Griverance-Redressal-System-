@@ -2,7 +2,8 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from typing import List
+from typing import List, Optional
+from pydantic import BaseModel
 import shutil
 import os
 import uuid
@@ -13,9 +14,32 @@ from app.services.email_service import send_registration_email, send_status_upda
 from app.auth.dependencies import get_current_user, require_admin, require_admin_or_worker
 from app.services.fraud_detector import analyze_fraud_and_spam
 from app.services.verification_agent import verify_worker_resolution
-
+from app.services.duplicate_detector import check_for_duplicate_grievance
 
 router = APIRouter(prefix="/grievance", tags=["Grievance"])
+
+class DuplicateCheckRequest(BaseModel):
+    latitude: float
+    longitude: float
+    category: Optional[str] = None
+    description: Optional[str] = ""
+
+@router.post("/check-duplicate")
+def check_duplicate_route(
+    data: DuplicateCheckRequest,
+    db: Session = Depends(connection.get_db)
+):
+    """
+    Real-time Duplicate Prevention: Checks if an active grievance has already been reported nearby.
+    """
+    return check_for_duplicate_grievance(
+        db=db,
+        latitude=data.latitude,
+        longitude=data.longitude,
+        category=data.category or "",
+        description=data.description or ""
+    )
+
 
 
 #Submit a new grievance (USER only)
@@ -110,32 +134,45 @@ def submit_grievance(
         raise HTTPException(status_code=500, detail="Failed to submit grievance")
 
 #Upload an image for a grievance
+ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
 @router.post("/upload-image")
 def upload_image(file: UploadFile = File(...)):
     """
     Accepts an image file and saves it locally.
+    Validates file extension, MIME type, and size.
     Returns the URL to the saved image.
     """
     try:
-        if not file.content_type.startswith("image/"):
+        if not file.content_type or not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="File provided is not an image.")
+
+        # Validate file extension
+        raw_ext = file.filename.split(".")[-1].lower() if file.filename and "." in file.filename else ""
+        if raw_ext not in ALLOWED_IMAGE_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Invalid image extension. Allowed: {', '.join(sorted(ALLOWED_IMAGE_EXTENSIONS))}")
 
         # Ensure directory exists
         os.makedirs("uploads", exist_ok=True)
 
-        # Generate unique filename
-        file_ext = file.filename.split(".")[-1]
-        unique_filename = f"{uuid.uuid4()}.{file_ext}"
-        file_location = f"uploads/{unique_filename}"
+        # Generate safe unique filename
+        unique_filename = f"{uuid.uuid4().hex}.{raw_ext}"
+        file_location = os.path.join("uploads", unique_filename)
 
-        # Save the file
-        with open(file_location, "wb+") as file_object:
-            shutil.copyfileobj(file.file, file_object)
+        # Read and check size
+        content = file.file.read()
+        if len(content) > MAX_IMAGE_SIZE_BYTES:
+            raise HTTPException(status_code=400, detail="Image size exceeds 5MB limit.")
+
+        with open(file_location, "wb") as f:
+            f.write(content)
 
         # Return the public URL for the file
-        # Assuming backend is running on localhost:8000
         return {"image_url": f"http://localhost:8000/uploads/{unique_filename}"}
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error uploading image: {e}")
         raise HTTPException(status_code=500, detail="Failed to upload image")
@@ -143,42 +180,74 @@ def upload_image(file: UploadFile = File(...)):
 #Get all grievances for the logged-in user
 @router.get("/my-grievances", response_model=List[schemas.GrievanceResponse])
 def get_my_grievances(
+    limit: int = 50,
+    offset: int = 0,
     db: Session = Depends(connection.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    Fetch all grievances submitted by the currently logged-in user.
+    Fetch all grievances submitted by the currently logged-in user with pagination.
     """
-    grievances = db.query(models.Grievance).filter(models.Grievance.user_id == current_user.id).all()
+    grievances = (
+        db.query(models.Grievance)
+        .filter(models.Grievance.user_id == current_user.id)
+        .order_by(models.Grievance.created_at.desc())
+        .offset(offset)
+        .limit(min(limit, 100))
+        .all()
+    )
     return grievances
 
 
 #Get tasks assigned to the logged-in worker
 @router.get("/worker/tasks", response_model=List[schemas.GrievanceResponse])
 def get_worker_tasks(
+    limit: int = 50,
+    offset: int = 0,
     db: Session = Depends(connection.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    Fetch all grievances assigned to the currently logged-in worker.
+    Fetch all grievances assigned to the currently logged-in worker with pagination.
     """
     if current_user.role != models.UserRole.worker:
         raise HTTPException(status_code=403, detail="Only workers can access this endpoint")
         
-    tasks = db.query(models.Grievance).filter(models.Grievance.assigned_worker_id == current_user.id).all()
+    tasks = (
+        db.query(models.Grievance)
+        .filter(models.Grievance.assigned_worker_id == current_user.id)
+        .order_by(models.Grievance.created_at.desc())
+        .offset(offset)
+        .limit(min(limit, 100))
+        .all()
+    )
     return tasks
 
 
 #Admin-only: View all grievances
 @router.get("/all", response_model=List[schemas.GrievanceResponse])
 def get_all_grievances(
+    limit: int = 100,
+    offset: int = 0,
+    status: str = None,
+    category: str = None,
     db: Session = Depends(connection.get_db),
     admin=Depends(require_admin)
 ):
     """
-    Allows admin to view all grievances in the system.
+    Allows admin to view all grievances in the system with optional status/category filtering and pagination.
     """
-    grievances = db.query(models.Grievance).order_by(models.Grievance.created_at.desc()).all()
+    query = db.query(models.Grievance)
+    if status:
+        query = query.filter(models.Grievance.status == status)
+    if category:
+        query = query.filter(models.Grievance.category == category)
+    grievances = (
+        query.order_by(models.Grievance.created_at.desc())
+        .offset(offset)
+        .limit(min(limit, 200))
+        .all()
+    )
     return grievances
 
 
@@ -253,23 +322,39 @@ def update_grievance_status(
     return {"message": f"Grievance ID {grievance_id} updated to status '{status}'."}
 
 from fastapi.responses import HTMLResponse
+from app.auth.utils import verify_feedback_token
 
 #Citizen: Confirm or Reject resolution from Email Link
 @router.get("/{grievance_id}/feedback", response_class=HTMLResponse)
 def citizen_email_feedback(
     grievance_id: int,
     accepted: str,
+    token: str = None,
     db: Session = Depends(connection.get_db)
 ):
     """
     Handles the user clicking 'Yes' or 'No' directly from the resolution email.
+    Verifies cryptographic HMAC token before executing status change.
     """
+    # Verify cryptographic signature
+    if not token or not verify_feedback_token(grievance_id, accepted.lower(), token):
+        return HTMLResponse(
+            status_code=403,
+            content="<html><body style='font-family: Arial, sans-serif; text-align: center; padding: 50px; color: #dc2626;'><h1>Invalid or Expired Link</h1><p>This action link is unauthorized, modified, or has an invalid signature.</p></body></html>"
+        )
+
     grievance = db.query(models.Grievance).filter(models.Grievance.id == grievance_id).first()
     if not grievance:
-        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'><h1>Grievance not found.</h1></body></html>"
+        return HTMLResponse(
+            status_code=404,
+            content="<html><body style='font-family: Arial, sans-serif; text-align: center; padding: 50px;'><h1>Grievance not found.</h1></body></html>"
+        )
         
     if grievance.status not in ["Pending Citizen Confirmation", "Resolved"]:
-        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'><h1>This grievance is already processed.</h1></body></html>"
+        return HTMLResponse(
+            status_code=400,
+            content="<html><body style='font-family: Arial, sans-serif; text-align: center; padding: 50px;'><h1>This grievance is already processed.</h1></body></html>"
+        )
         
     if accepted.lower() == "true":
         grievance.status = "Closed"

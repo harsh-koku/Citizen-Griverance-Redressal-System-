@@ -55,9 +55,12 @@ body {
   background: #64748b;
 }
 
-/* Global Form Input Fix for Padding Overlaps */
-input, textarea, select {
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  box-sizing: border-box !important;
+/* Global Form Input Fix for Padding */
+input:not([class*="pl-"]), textarea:not([class*="pl-"]), select:not([class*="pl-"]) {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
+input, textarea, select {
+  box-sizing: border-box;
+}
+

@@ -1,16 +1,27 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
-import { MapPin, Image as ImageIcon, Send, X, Mic, MicOff } from "lucide-react";
+import { MapPin, Image as ImageIcon, Send, X, Mic, MicOff, AlertCircle, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/context/LanguageContext";
 
 const MapPickerModal = dynamic(() => import("./MapPickerModal"), { ssr: false });
 
 interface GrievanceFormProps {
-  onSubmitted?: (grievance: any) => void;  // <-- made optional
+  onSubmitted?: (grievance: any) => void;
+}
+
+interface DuplicateMatch {
+  is_duplicate: boolean;
+  duplicate_id?: number;
+  category?: string;
+  status?: string;
+  priority?: string;
+  distance_meters?: number;
+  created_at?: string;
+  description_snippet?: string;
 }
 
 export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
@@ -27,65 +38,130 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Speech Recognition State
-  const [isListening, setIsListening] = useState(false);
+  // Duplicate Prevention State
+  const [duplicateInfo, setDuplicateInfo] = useState<DuplicateMatch | null>(null);
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+
+  // Whisper AI Voice Typing State
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [transcribingVoice, setTranscribingVoice] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  // Browser speech recognition fallback ref
   const recognitionRef = useRef<any>(null);
 
-  const toggleListening = () => {
-    if (isListening) {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+  // Check for duplicates when location is set
+  const checkDuplicateGrievance = async (lat: number, lng: number, cat: string, desc: string) => {
+    setCheckingDuplicate(true);
+    try {
+      const res = await api.post("/grievance/check-duplicate", {
+        latitude: lat,
+        longitude: lng,
+        category: cat || null,
+        description: desc || ""
+      });
+      if (res.data?.is_duplicate) {
+        setDuplicateInfo(res.data);
+      } else {
+        setDuplicateInfo(null);
       }
-      setIsListening(false);
+    } catch {
+      setDuplicateInfo(null);
+    } finally {
+      setCheckingDuplicate(false);
+    }
+  };
+
+  useEffect(() => {
+    if (attachedLocation) {
+      const timer = setTimeout(() => {
+        checkDuplicateGrievance(attachedLocation.lat, attachedLocation.lng, category, description);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setDuplicateInfo(null);
+    }
+  }, [attachedLocation, category]);
+
+  // High-accuracy Whisper voice recording
+  const toggleVoiceRecording = async () => {
+    if (isRecordingVoice) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecordingVoice(false);
       return;
     }
 
+    // Try modern MediaRecorder for server-side Whisper transcription
+    if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunksRef.current = [];
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach((track) => track.stop());
+          const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+          if (audioBlob.size < 500) return;
+
+          setTranscribingVoice(true);
+          try {
+            const formData = new FormData();
+            formData.append("file", audioBlob, "voice_input.webm");
+            const res = await api.post("/ai/transcribe-audio", formData, {
+              headers: { "Content-Type": "multipart/form-data" }
+            });
+            if (res.data?.transcription) {
+              setDescription((prev) =>
+                prev ? `${prev.trim()} ${res.data.transcription.trim()}` : res.data.transcription.trim()
+              );
+            }
+          } catch (err) {
+            console.error("Whisper transcription error:", err);
+          } finally {
+            setTranscribingVoice(false);
+          }
+        };
+
+        mediaRecorder.start();
+        setIsRecordingVoice(true);
+        return;
+      } catch (err) {
+        console.warn("Microphone access failed, falling back to browser speech recognition", err);
+      }
+    }
+
+    // Fallback: Web Speech API
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert("Your browser doesn't support speech recognition. Please try Chrome or Edge.");
+      alert("Microphone recording is not available in your browser.");
       return;
     }
 
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.continuous = false;
+    recognition.interimResults = false;
     recognition.lang = language === 'en' ? 'en-IN' : language === 'hi' ? 'hi-IN' : 'mr-IN';
 
-    let currentBaseDescription = description;
-    if (currentBaseDescription && !currentBaseDescription.endsWith(' ')) {
-      currentBaseDescription += ' ';
-    }
-
-    recognition.onstart = () => setIsListening(true);
-
+    recognition.onstart = () => setIsRecordingVoice(true);
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + ' ';
-        } else {
-          interimTranscript += event.results[i][0].transcript;
-        }
+      const transcript = event.results[0][0].transcript;
+      if (transcript) {
+        setDescription((prev) => (prev ? `${prev.trim()} ${transcript}` : transcript));
       }
-
-      currentBaseDescription += finalTranscript;
-      setDescription(currentBaseDescription + interimTranscript);
     };
-
-    recognition.onerror = (event: any) => {
-      if (event.error === 'aborted' || event.error === 'no-speech') {
-        console.log("Speech recognition stopped:", event.error);
-      } else {
-        console.error("Speech recognition error", event.error);
-      }
-      setIsListening(false);
-    };
-
-    recognition.onend = () => setIsListening(false);
-
+    recognition.onerror = () => setIsRecordingVoice(false);
+    recognition.onend = () => setIsRecordingVoice(false);
     recognition.start();
   };
 
@@ -121,6 +197,7 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
       setDescription("");
       setAttachedLocation(null);
       setAttachedImage(null);
+      setDuplicateInfo(null);
     } catch (err) {
       const error = err as AxiosError;
       console.error(error);
@@ -138,22 +215,43 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2">
-        <div>
+        <div id="step-description">
           <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">{t("Description")} <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {t("Description")} <span className="text-red-500">*</span>
+            </label>
             <button
               type="button"
-              onClick={toggleListening}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${isListening ? 'bg-red-50 border-red-200 text-red-600 animate-pulse' : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100'}`}
+              onClick={toggleVoiceRecording}
+              disabled={transcribingVoice}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                isRecordingVoice
+                  ? 'bg-red-500 border-red-600 text-white animate-pulse shadow-md'
+                  : transcribingVoice
+                  ? 'bg-amber-100 border-amber-300 text-amber-800'
+                  : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300'
+              }`}
             >
-              {isListening ? <><MicOff size={14} /> {t("Stop Listening")}</> : <><Mic size={14} /> {t("Voice Typing")}</>}
+              {transcribingVoice ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" /> Transcribing with Whisper...
+                </>
+              ) : isRecordingVoice ? (
+                <>
+                  <MicOff size={13} /> {t("Stop Listening")}
+                </>
+              ) : (
+                <>
+                  <Mic size={13} /> AI Voice Typing
+                </>
+              )}
             </button>
           </div>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Water supply broken in Nagpur since yesterday..."
-            className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 rounded-xl min-h-[120px] outline-none  resize-none text-gray-800 dark:text-gray-100"
+            className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 rounded-xl min-h-[120px] outline-none resize-none text-gray-800 dark:text-gray-100"
             required
           />
         </div>
@@ -174,7 +272,7 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
           </select>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div id="step-location-evidence" className="flex flex-col gap-3">
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">{t("Location & Evidence")} <span className="text-red-500">*</span></label>
           <div className="flex flex-wrap gap-4">
 
@@ -182,7 +280,7 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
             <button
               type="button"
               onClick={() => setShowMapModal(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
             >
               <MapPin className="text-blue-600" size={20} />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Select Location")} <span className="text-red-500">*</span></span>
@@ -217,7 +315,7 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingImage}
-              className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
             >
               <ImageIcon className="text-blue-600" size={20} />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{uploadingImage ? t("Uploading...") : t("Add Image")}</span>
@@ -239,6 +337,31 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
                   <button type="button" onClick={() => setAttachedImage(null)} className="text-blue-500 hover:text-red-500"><X size={16} /></button>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Duplicate Prevention Card */}
+          {duplicateInfo && (
+            <div className="p-3.5 bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl text-amber-900 dark:text-amber-200 text-sm flex items-start gap-2.5 shadow-sm">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+              <div className="flex-1">
+                <span className="font-bold text-amber-800 dark:text-amber-300">
+                  Existing Report Found Nearby (#{duplicateInfo.duplicate_id})
+                </span>
+                <p className="text-xs text-amber-700 dark:text-amber-300/90 mt-1 leading-relaxed">
+                  A complaint about <strong>{duplicateInfo.category}</strong> was reported approximately{" "}
+                  <strong>{duplicateInfo.distance_meters} meters away</strong> and is currently{" "}
+                  <span className="px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-800 font-semibold">{duplicateInfo.status}</span>.
+                </p>
+                {duplicateInfo.description_snippet && (
+                  <p className="text-xs italic text-amber-600 dark:text-amber-400/80 mt-1">
+                    "{duplicateInfo.description_snippet}"
+                  </p>
+                )}
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5">
+                  You can still submit this report if you are adding new details or evidence.
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -264,6 +387,7 @@ export default function GrievanceForm({ onSubmitted }: GrievanceFormProps) {
           onSelect={(loc) => {
             setAttachedLocation(loc);
             setShowMapModal(false);
+            checkDuplicateGrievance(loc.lat, loc.lng, category, description);
           }}
         />
       )}

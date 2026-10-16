@@ -1,17 +1,19 @@
 import pandas as pd
-from app.db.connection import get_db
+from app.db.connection import SessionLocal
 from app.db.models import Grievance
 import joblib
 import numpy as np
 
 def get_hotspot_trends(limit=5):
     """Combine real hotspot volume with Prophet forecast trend (region + category adaptive)."""
-    db = next(get_db())
-
-    #Fetch real grievance data ---
-    grievances = db.query(Grievance).all()
-    if not grievances:
-        return {"message": "No grievance data yet."}
+    db = SessionLocal()
+    try:
+        #Fetch real grievance data ---
+        grievances = db.query(Grievance).all()
+        if not grievances:
+            return {"message": "No grievance data yet."}
+    finally:
+        db.close()
 
     data = [
         {
